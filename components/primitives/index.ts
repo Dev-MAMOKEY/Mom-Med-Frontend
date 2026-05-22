@@ -4,3 +4,5 @@ export { Input } from './Input';
 export type { InputProps, InputVariant } from './Input';
 export { Card } from './Card';
 export type { CardProps, CardVariant, CardPadding } from './Card';
+export { Badge } from './Badge';
+export type { BadgeProps, BadgeVariant, BadgeSemantic, BadgeSeverity, BadgeSize } from './Badge';
