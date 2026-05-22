@@ -10,3 +10,5 @@ export { Avatar } from './Avatar';
 export type { AvatarProps, AvatarRole, AvatarSize } from './Avatar';
 export { Modal } from './Modal';
 export type { ModalProps, ModalPresentation } from './Modal';
+export { BottomSheet } from './BottomSheet';
+export type { BottomSheetProps, BottomSheetRef } from './BottomSheet';
