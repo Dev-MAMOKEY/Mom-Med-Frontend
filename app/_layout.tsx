@@ -1,13 +1,26 @@
 import '@/styles/global.css';
 
-import { Stack } from 'expo-router';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { PhoneFrame } from '@/components/PhoneFrame';
 
 SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+      staleTime: 30_000,
+    },
+  },
+});
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -25,8 +38,21 @@ export default function RootLayout() {
   if (!loaded && !error) return null;
 
   return (
-    <PhoneFrame>
-      <Stack screenOptions={{ headerShown: false }} />
-    </PhoneFrame>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <BottomSheetModalProvider>
+          <PhoneFrame>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="index" />
+              <Stack.Screen name="demo" />
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(parent)" />
+              <Stack.Screen name="(caregiver)" />
+              <Stack.Screen name="(modals)" options={{ presentation: 'modal' }} />
+            </Stack>
+          </PhoneFrame>
+        </BottomSheetModalProvider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
