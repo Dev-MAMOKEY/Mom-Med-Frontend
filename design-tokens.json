@@ -1,0 +1,249 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "$name": "엄마약 디자인 토큰 v1",
+  "$description": "웜 골드 + 살구 핑크 · 라이트 모드 전용 · NativeWind/Tailwind 호환",
+  "$version": "1.0.0",
+  "$date": "2026-05-20",
+
+  "color": {
+    "$description": "기본 컬러 팔레트 — Tailwind config의 colors 섹션에 직접 import",
+
+    "brand": {
+      "primary":       { "value": "#E89B6C", "comment": "살구 골드 — 메인 액션·헤더·강조" },
+      "primary-soft":  { "value": "#FFF1E6", "comment": "크림 살구 — 카드 배경·hover 상태" },
+      "primary-bold":  { "value": "#D97757", "comment": "구운 살구 — CTA 버튼·진한 강조" },
+      "primary-50":    { "value": "#FFF8F1" },
+      "primary-100":   { "value": "#FFEFE0" },
+      "primary-200":   { "value": "#FFD9B8" },
+      "primary-300":   { "value": "#F8BC8E" },
+      "primary-400":   { "value": "#F0A574" },
+      "primary-500":   { "value": "#E89B6C", "comment": "= brand.primary" },
+      "primary-600":   { "value": "#D97757", "comment": "= brand.primary-bold" },
+      "primary-700":   { "value": "#B85A40" },
+      "primary-800":   { "value": "#94422E" },
+      "primary-900":   { "value": "#6E2F1F" }
+    },
+
+    "neutral": {
+      "$description": "배경·테두리·텍스트 — 따뜻한 베이지 톤",
+      "bg":            { "value": "#FAF7F2", "comment": "앱 배경 (베이지 화이트)" },
+      "surface":       { "value": "#FFFFFF", "comment": "카드·모달 배경" },
+      "surface-alt":   { "value": "#F5F0E8", "comment": "구분 배경" },
+      "border":        { "value": "#E8DFD0", "comment": "기본 테두리" },
+      "border-strong": { "value": "#D4C7B0", "comment": "강조 테두리" },
+      "text":          { "value": "#2D2419", "comment": "주요 텍스트 (다크 브라운)" },
+      "text-soft":     { "value": "#5C4A3A", "comment": "보조 텍스트" },
+      "text-mute":     { "value": "#8A7A66", "comment": "비활성·캡션" },
+      "text-disabled": { "value": "#B8A892", "comment": "비활성 텍스트" }
+    },
+
+    "semantic": {
+      "$description": "안전판정·알림·상태 표시용 — 따뜻한 톤에 맞춰 채도 약간 낮춤",
+      "success":       { "value": "#3F9B5D", "comment": "안전·승인 (ALLOW)" },
+      "success-soft":  { "value": "#E8F4EC" },
+      "warning":       { "value": "#E89B3C", "comment": "주의 (WARN) — primary와 살짝 다른 톤" },
+      "warning-soft":  { "value": "#FDF3E0" },
+      "danger":        { "value": "#C84B3E", "comment": "차단·위험 (BLOCK)" },
+      "danger-soft":   { "value": "#F9E5E2" },
+      "info":          { "value": "#4A7FB8", "comment": "정보·중립" },
+      "info-soft":     { "value": "#E5EEF7" }
+    },
+
+    "severity": {
+      "$description": "날씨 알림 severity (slice 06 weather_rules)",
+      "관심":  { "value": "#7AA876" },
+      "주의":  { "value": "#E89B3C" },
+      "경고":  { "value": "#D97757" },
+      "위험":  { "value": "#C84B3E" }
+    },
+
+    "role": {
+      "$description": "역할 시각 구분",
+      "parent":   { "value": "#E89B6C", "comment": "부모 시점 — 살구" },
+      "caregiver":{ "value": "#A87B5C", "comment": "자녀 시점 — 짙은 모카" }
+    }
+  },
+
+  "spacing": {
+    "$description": "8px 그리드 · NativeWind의 m-1/2/3/4… 스케일과 일치",
+    "0":   { "value": "0" },
+    "px":  { "value": "1px" },
+    "1":   { "value": "4px" },
+    "2":   { "value": "8px" },
+    "3":   { "value": "12px" },
+    "4":   { "value": "16px" },
+    "5":   { "value": "20px" },
+    "6":   { "value": "24px" },
+    "8":   { "value": "32px" },
+    "10":  { "value": "40px" },
+    "12":  { "value": "48px" },
+    "16":  { "value": "64px" },
+    "20":  { "value": "80px" },
+    "24":  { "value": "96px" }
+  },
+
+  "typography": {
+    "fontFamily": {
+      "$description": "한글 — Pretendard 우선 (가독성·전체 가중치). 영문 fallback.",
+      "sans":    { "value": "Pretendard, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif" },
+      "mono":    { "value": "'SF Mono', ui-monospace, 'Menlo', 'D2Coding', monospace" }
+    },
+
+    "fontSize": {
+      "$description": "노년층 직접 사용 X (자녀 위주). 부모 화면만 별도 large 스케일 적용.",
+      "xs":      { "value": "11px", "lineHeight": "16px", "comment": "캡션·뱃지" },
+      "sm":      { "value": "13px", "lineHeight": "18px", "comment": "보조 텍스트" },
+      "base":    { "value": "15px", "lineHeight": "22px", "comment": "기본 본문" },
+      "lg":      { "value": "17px", "lineHeight": "24px", "comment": "강조 본문" },
+      "xl":      { "value": "19px", "lineHeight": "26px", "comment": "소제목" },
+      "2xl":     { "value": "22px", "lineHeight": "30px", "comment": "섹션 제목" },
+      "3xl":     { "value": "26px", "lineHeight": "34px", "comment": "화면 제목" },
+      "4xl":     { "value": "32px", "lineHeight": "40px", "comment": "히어로" }
+    },
+
+    "fontSize-parent": {
+      "$description": "부모 화면 전용 — 노년층 친화 + 18% 큼",
+      "sm":   { "value": "15px", "lineHeight": "22px" },
+      "base": { "value": "18px", "lineHeight": "26px" },
+      "lg":   { "value": "20px", "lineHeight": "28px" },
+      "xl":   { "value": "23px", "lineHeight": "32px" },
+      "2xl":  { "value": "27px", "lineHeight": "36px" }
+    },
+
+    "fontWeight": {
+      "regular":  { "value": "400" },
+      "medium":   { "value": "500" },
+      "semibold": { "value": "600" },
+      "bold":     { "value": "700" },
+      "extrabold":{ "value": "800" }
+    },
+
+    "letterSpacing": {
+      "tight":  { "value": "-0.3px", "comment": "큰 제목" },
+      "normal": { "value": "0" },
+      "wide":   { "value": "0.3px", "comment": "버튼·태그" }
+    }
+  },
+
+  "radius": {
+    "$description": "둥근 모서리 — 따뜻한 톤에 맞춰 비교적 둥글게",
+    "none": { "value": "0" },
+    "sm":   { "value": "6px",  "comment": "태그·뱃지" },
+    "md":   { "value": "10px", "comment": "버튼·입력" },
+    "lg":   { "value": "14px", "comment": "카드" },
+    "xl":   { "value": "20px", "comment": "모달·시트" },
+    "2xl":  { "value": "28px", "comment": "히어로 카드" },
+    "full": { "value": "9999px", "comment": "pill 버튼·아바타" }
+  },
+
+  "shadow": {
+    "$description": "elevation — 따뜻한 그림자(블랙 대신 브라운 베이스)",
+    "none": { "value": "none" },
+    "xs":   { "value": "0 1px 2px rgba(60, 40, 20, 0.06)" },
+    "sm":   { "value": "0 2px 6px rgba(60, 40, 20, 0.08)" },
+    "md":   { "value": "0 4px 12px rgba(60, 40, 20, 0.10)" },
+    "lg":   { "value": "0 8px 24px rgba(60, 40, 20, 0.12)" },
+    "xl":   { "value": "0 16px 40px rgba(60, 40, 20, 0.14)" }
+  },
+
+  "motion": {
+    "duration": {
+      "instant": { "value": "0ms" },
+      "fast":    { "value": "150ms",  "comment": "버튼 hover·press" },
+      "base":    { "value": "250ms",  "comment": "기본 트랜지션" },
+      "slow":    { "value": "400ms",  "comment": "모달 enter/exit" },
+      "slower":  { "value": "600ms",  "comment": "화면 전환" }
+    },
+    "easing": {
+      "standard":   { "value": "cubic-bezier(0.4, 0, 0.2, 1)" },
+      "decelerate": { "value": "cubic-bezier(0, 0, 0.2, 1)" },
+      "accelerate": { "value": "cubic-bezier(0.4, 0, 1, 1)" },
+      "spring":     { "value": "cubic-bezier(0.34, 1.56, 0.64, 1)" }
+    }
+  },
+
+  "z": {
+    "base":     { "value": 0 },
+    "dropdown": { "value": 1000 },
+    "sticky":   { "value": 1100 },
+    "fixed":    { "value": 1200 },
+    "modal-bg": { "value": 1300 },
+    "modal":    { "value": 1400 },
+    "popover":  { "value": 1500 },
+    "tooltip":  { "value": 1600 },
+    "toast":    { "value": 1700 }
+  },
+
+  "layout": {
+    "$description": "디바이스·컨테이너 치수",
+    "phone-width":    { "value": "390px", "comment": "iPhone 15 기준 — 데모 PhoneFrame" },
+    "phone-height":   { "value": "844px" },
+    "safe-top":       { "value": "47px",  "comment": "iOS notch 영역" },
+    "safe-bottom":    { "value": "34px",  "comment": "iOS home indicator" },
+    "tabbar-height":  { "value": "56px" },
+    "header-height":  { "value": "52px" },
+    "touch-min":      { "value": "44px",  "comment": "최소 터치 영역 (Apple HIG)" }
+  },
+
+  "component": {
+    "$description": "컴포넌트별 토큰 (반복 사용 패턴)",
+
+    "button": {
+      "primary": {
+        "bg":        { "value": "{color.brand.primary-bold}" },
+        "bg-press":  { "value": "{color.brand.primary-700}" },
+        "fg":        { "value": "#FFFFFF" },
+        "radius":    { "value": "{radius.md}" },
+        "py":        { "value": "{spacing.3}" },
+        "px":        { "value": "{spacing.6}" }
+      },
+      "secondary": {
+        "bg":        { "value": "{color.brand.primary-soft}" },
+        "bg-press":  { "value": "{color.brand.primary-100}" },
+        "fg":        { "value": "{color.brand.primary-bold}" },
+        "border":    { "value": "{color.brand.primary-200}" }
+      },
+      "danger": {
+        "bg":        { "value": "{color.semantic.danger}" },
+        "fg":        { "value": "#FFFFFF" }
+      }
+    },
+
+    "card": {
+      "bg":     { "value": "{color.neutral.surface}" },
+      "border": { "value": "{color.neutral.border}" },
+      "radius": { "value": "{radius.lg}" },
+      "shadow": { "value": "{shadow.sm}" },
+      "p":      { "value": "{spacing.4}" }
+    },
+
+    "input": {
+      "bg":           { "value": "{color.neutral.surface}" },
+      "bg-focus":     { "value": "{color.brand.primary-50}" },
+      "border":       { "value": "{color.neutral.border}" },
+      "border-focus": { "value": "{color.brand.primary}" },
+      "radius":       { "value": "{radius.md}" },
+      "py":           { "value": "{spacing.3}" },
+      "px":           { "value": "{spacing.4}" },
+      "fontSize":     { "value": "{typography.fontSize.base}" }
+    },
+
+    "safety-banner": {
+      "$description": "BLOCK/WARN/ALLOW 결과 표시",
+      "allow-bg":  { "value": "{color.semantic.success-soft}" },
+      "allow-fg":  { "value": "{color.semantic.success}" },
+      "warn-bg":   { "value": "{color.semantic.warning-soft}" },
+      "warn-fg":   { "value": "{color.semantic.warning}" },
+      "block-bg":  { "value": "{color.semantic.danger-soft}" },
+      "block-fg":  { "value": "{color.semantic.danger}" }
+    },
+
+    "tab-bar": {
+      "bg":         { "value": "{color.neutral.surface}" },
+      "border-top": { "value": "{color.neutral.border}" },
+      "active":     { "value": "{color.brand.primary-bold}" },
+      "inactive":   { "value": "{color.neutral.text-mute}" },
+      "height":     { "value": "{layout.tabbar-height}" }
+    }
+  }
+}
