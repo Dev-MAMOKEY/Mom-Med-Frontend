@@ -6,3 +6,5 @@ export { Card } from './Card';
 export type { CardProps, CardVariant, CardPadding } from './Card';
 export { Badge } from './Badge';
 export type { BadgeProps, BadgeVariant, BadgeSemantic, BadgeSeverity, BadgeSize } from './Badge';
+export { Avatar } from './Avatar';
+export type { AvatarProps, AvatarRole, AvatarSize } from './Avatar';
