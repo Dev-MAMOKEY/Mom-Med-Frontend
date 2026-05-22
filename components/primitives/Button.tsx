@@ -1,6 +1,8 @@
 import { ActivityIndicator, Pressable, Text } from 'react-native';
 import type { PressableProps } from 'react-native';
 
+import tokens from '@/design-tokens.json';
+
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
@@ -38,11 +40,14 @@ const labelBySize: Record<ButtonSize, string> = {
   lg: 'text-base',
 };
 
+const surfaceColor = tokens.color.neutral.surface.value;
+const primaryBoldColor = tokens.color.brand['primary-bold'].value;
+
 const spinnerColor: Record<ButtonVariant, string> = {
-  primary: '#FFFFFF',
-  secondary: '#D97757',
-  danger: '#FFFFFF',
-  ghost: '#D97757',
+  primary: surfaceColor,
+  secondary: primaryBoldColor,
+  danger: surfaceColor,
+  ghost: primaryBoldColor,
 };
 
 export function Button({
