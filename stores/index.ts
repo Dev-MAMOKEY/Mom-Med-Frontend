@@ -1,1 +1,2 @@
-export {};
+export { useRoleStore } from './roleStore';
+export type { Role } from './roleStore';
