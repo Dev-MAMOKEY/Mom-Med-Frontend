@@ -16,3 +16,5 @@ export { ListItem } from './ListItem';
 export type { ListItemProps, ListItemSize } from './ListItem';
 export { EmptyState } from './EmptyState';
 export type { EmptyStateProps, EmptyStateCTA } from './EmptyState';
+export { Loading } from './Loading';
+export type { LoadingProps, LoadingSize } from './Loading';
