@@ -8,3 +8,5 @@ export { Badge } from './Badge';
 export type { BadgeProps, BadgeVariant, BadgeSemantic, BadgeSeverity, BadgeSize } from './Badge';
 export { Avatar } from './Avatar';
 export type { AvatarProps, AvatarRole, AvatarSize } from './Avatar';
+export { Modal } from './Modal';
+export type { ModalProps, ModalPresentation } from './Modal';
