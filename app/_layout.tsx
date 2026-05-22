@@ -1,18 +1,15 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import '@/styles/global.css';
+
+import { Stack } from 'expo-router';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
 import { PhoneFrame } from '@/components/PhoneFrame';
-
 
 SplashScreen.preventAutoHideAsync();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+export default function RootLayout() {
   const [loaded, error] = useFonts({
     'Pretendard-Regular': require('@/assets/fonts/Pretendard-Regular.otf'),
     'Pretendard-Bold': require('@/assets/fonts/Pretendard-Bold.otf'),
@@ -28,11 +25,8 @@ export default function TabLayout() {
   if (!loaded && !error) return null;
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <PhoneFrame>
-        <AnimatedSplashOverlay />
-        <AppTabs />
-      </PhoneFrame>
-    </ThemeProvider>
+    <PhoneFrame>
+      <Stack screenOptions={{ headerShown: false }} />
+    </PhoneFrame>
   );
 }
