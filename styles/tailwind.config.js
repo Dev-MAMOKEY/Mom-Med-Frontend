@@ -65,10 +65,12 @@ const borderRadius = flatten(tokens.radius);
 // ─── config ───────────────────────────────────────────────────────────────
 /** @type {import('tailwindcss').Config} */
 export default {
+  // Paths are root-relative because Tailwind resolves content paths from
+  // process.cwd() (project root), not from this config file's directory.
   content: [
-    '../app/**/*.{js,jsx,ts,tsx}',
-    '../components/**/*.{js,jsx,ts,tsx}',
-    '../hooks/**/*.{ts,tsx}',
+    './app/**/*.{js,jsx,ts,tsx}',
+    './components/**/*.{js,jsx,ts,tsx}',
+    './hooks/**/*.{ts,tsx}',
   ],
   presets: [nativewindPreset],
   theme: {
