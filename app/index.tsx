@@ -11,9 +11,29 @@ export default function Index() {
   const [hydrated, setHydrated] = useState(() => useRoleStore.persist.hasHydrated());
 
   useEffect(() => {
-    // persist 복원이 비동기이므로 완료 시점 구독
-    const unsub = useRoleStore.persist.onFinishHydration(() => setHydrated(true));
-    return unsub;
+    // 디버그: hydration 단계 추적
+    console.log('[Index] mount, hasHydrated=', useRoleStore.persist.hasHydrated(), 'role=', useRoleStore.getState().role);
+
+    // 마운트와 subscribe 사이에 hydration이 이미 끝나 있을 수 있으므로 한 번 더 체크 (race 방지)
+    if (useRoleStore.persist.hasHydrated()) {
+      setHydrated(true);
+      return;
+    }
+    const unsubFinish = useRoleStore.persist.onFinishHydration((state) => {
+      console.log('[Index] onFinishHydration, role=', state?.role);
+      setHydrated(true);
+    });
+
+    // AsyncStorage 실패 등으로 콜백이 영영 안 올 경우 대비 — 1.5초 fallback
+    const fallback = setTimeout(() => {
+      console.warn('[Index] hydration fallback fired — persist 이벤트 미수신');
+      setHydrated(true);
+    }, 1500);
+
+    return () => {
+      unsubFinish();
+      clearTimeout(fallback);
+    };
   }, []);
 
   if (!hydrated) {
