@@ -2,13 +2,13 @@ import { router } from 'expo-router';
 import { Settings, Users } from 'lucide-react-native';
 import { Pressable, Text, View } from 'react-native';
 
+import type { Parent } from '@/api/types/parent';
 import { Header, ScreenContainer } from '@/components';
-import { EmptyState, Loading } from '@/components/primitives';
 import { ParentListItem } from '@/components/domain/ParentListItem';
+import { EmptyState, Loading } from '@/components/primitives';
 import tokens from '@/design-tokens.json';
 import { useParents } from '@/hooks';
 import { useCurrentParentStore } from '@/stores';
-import type { Parent } from '@/api/types/parent';
 
 const settingsIconColor = tokens.color.neutral['text-soft'].value;
 
@@ -26,10 +26,8 @@ export default function CaregiverParents() {
   // 우상단 설정 아이콘 → 설정 화면
   const goSettings = () => router.push('/(caregiver)/settings');
 
-  // 하단 등록 버튼 → 부모 등록 플로우 (화면은 다음 이슈에서 추가, 그 전엔 라우터 push만)
-  const goAddParent = () =>
-    // @ts-expect-error add-parent/phone 라우트는 다음 이슈(#26)에서 추가됨
-    router.push('/(caregiver)/add-parent/phone');
+  // 하단 등록 버튼 → 부모 등록 플로우 (phone 화면)
+  const goAddParent = () => router.push('/(caregiver)/add-parent/phone');
 
   const SettingsButton = (
     <Pressable
