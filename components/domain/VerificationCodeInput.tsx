@@ -20,7 +20,7 @@ export interface VerificationCodeInputProps {
 }
 
 const SHAKE_STEP_MS = 100;
-
+// 인증 코드 입력 UI — 4자리 또는 6자리, 입력 완료 시 자동 검증, 에러 시 흔들림 애니메이션 + 에러 메시지 표시
 export function VerificationCodeInput({
   length,
   value,
@@ -83,26 +83,26 @@ export function VerificationCodeInput({
 
   return (
     <View>
-      <Animated.View style={animatedStyle}>
-        <View className="flex-row gap-3">
-          {Array.from({ length }).map((_, i) => (
-            <TextInput
-              key={i}
-              ref={setRef(i)}
-              value={value[i] ?? ''}
-              onChangeText={handleChangeText(i)}
-              onKeyPress={handleKeyPress(i)}
-              maxLength={1}
-              keyboardType="number-pad"
-              textAlign="center"
-              className={`flex-1 h-20 bg-surface border-2 ${borderClass} rounded-md text-3xl font-extrabold text-text`}
-            />
-          ))}
-        </View>
-      </Animated.View>
-      {hasError && (
-        <Text className="text-xs font-semibold text-danger mt-2">{error}</Text>
-      )}
+  <Animated.View style={animatedStyle}>
+    <View className="flex-row justify-center gap-3">
+      {Array.from({ length }).map((_, i) => (
+        <TextInput
+          key={i}
+          ref={setRef(i)}
+          value={value[i] ?? ''}
+          onChangeText={handleChangeText(i)}
+          onKeyPress={handleKeyPress(i)}
+          maxLength={1} 
+          keyboardType="number-pad"
+          textAlign="center" 
+          textAlignVertical="center"
+          className={`w-14 h-16 bg-surface border-2 ${borderClass} rounded-md text-2xl font-bold text-text text-center p-0`}
+        />
+      ))}
     </View>
-  );
+  </Animated.View>
+  {hasError && (
+    <Text className="text-xs font-semibold text-danger mt-2">{error}</Text>
+  )}
+</View>);
 }
