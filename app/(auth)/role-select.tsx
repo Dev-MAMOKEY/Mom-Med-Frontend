@@ -1,4 +1,4 @@
-import { Redirect, useRouter } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { Text, View } from 'react-native';
 
 import { RoleSelectCard } from '@/components/domain';
@@ -6,7 +6,6 @@ import { useRoleStore, useSessionStore } from '@/stores';
 
 // 역할 선택 화면 — 부모/자녀 시점 카드 2개, 선택 시 roleStore 저장 후 해당 홈으로 이동
 export default function RoleSelect() {
-  const router = useRouter();
   const role = useRoleStore((s) => s.role);
   const setRole = useRoleStore((s) => s.setRole);
   const isDemoMode = useSessionStore((s) => s.isDemoMode);

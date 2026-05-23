@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
@@ -9,15 +9,15 @@ const REDIRECT_DELAY_MS = 300;
 
 // MVP 로그인 화면 — UI만 보여주고 짧은 지연 후 역할 선택으로 자동 이동
 export default function Login() {
-  const router = useRouter();
   const isDemoMode = useSessionStore((s) => s.isDemoMode);
 
   useEffect(() => {
+    // static router를 써야 deps 없이도 안전 (useRouter는 렌더마다 참조 바뀌어 타이머가 계속 리셋됨)
     const timer = setTimeout(() => {
       router.replace('/(auth)/role-select');
     }, REDIRECT_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [router]);
+  }, []);
 
   // 카카오·휴대폰 버튼 — MVP에서는 둘 다 동일하게 역할 선택으로 이동
   const goNext = () => router.replace('/(auth)/role-select');
