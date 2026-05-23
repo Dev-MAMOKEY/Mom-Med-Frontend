@@ -18,9 +18,7 @@ export default function CaregiverSettings() {
     else router.replace('/(caregiver)/parents');
   };
 
-  const goAddParent = () =>
-    // @ts-expect-error add-parent/phone 라우트는 다음 이슈(#26)에서 추가됨
-    router.push('/(caregiver)/add-parent/phone');
+  const goAddParent = () => router.push('/(caregiver)/add-parent/phone');
 
   // 로그아웃 — 역할·현재 부모 컨텍스트 초기화 후 역할 선택으로 복귀
   const onLogout = () => {
