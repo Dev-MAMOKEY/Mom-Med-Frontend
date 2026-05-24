@@ -1,21 +1,12 @@
 import { ZodSchema } from 'zod';
 
+import { ApiError, SafetyBlockError } from './types/common';
+
+// 에러 클래스는 ./types/common 단일 소스 — 중복 정의 시 instanceof 불일치 위험
+export { ApiError, SafetyBlockError };
+
 const USE_MOCK = process.env.EXPO_PUBLIC_USE_MOCK === 'true';
 const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
-
-export class ApiError extends Error {
-  constructor(public status: number, public body: unknown) {
-    super(`ApiError ${status}`);
-    this.name = 'ApiError';
-  }
-}
-
-export class SafetyBlockError extends ApiError {
-  constructor(body: unknown) {
-    super(409, body);
-    this.name = 'SafetyBlockError';
-  }
-}
 
 export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 
