@@ -20,6 +20,8 @@ export default function ParentHome() {
   }
 
   const alertCount = data?.safety.evidences.length ?? 0;
+  // 정확한 다음 약 시간 계산은 Phase 2 알람 시스템 — 지금은 약장 첫 약 표시
+  const nextMedication = data?.list.medications[0];
 
   return (
     <View className="flex-1 bg-bg">
@@ -34,6 +36,18 @@ export default function ParentHome() {
           <Text className="text-2xl font-extrabold text-text mt-1">
             {alertCount > 0 ? `알림 ${alertCount}건 있어요` : '오늘 알림이 없어요'}
           </Text>
+        </View>
+
+        <View className="bg-primary-soft rounded-2xl p-5">
+          <Text className="text-xs font-bold text-primary-bold">다음 약</Text>
+          <Text className="text-xl font-extrabold text-text mt-1">
+            {nextMedication?.item_name ?? '예정된 약 없음'}
+          </Text>
+          {nextMedication?.dosage_schedule && (
+            <Text className="text-sm text-text-soft mt-1">
+              {nextMedication.dosage_schedule}
+            </Text>
+          )}
         </View>
       </ScrollView>
     </View>
