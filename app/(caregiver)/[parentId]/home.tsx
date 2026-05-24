@@ -1,6 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 import { ScrollView, Text, View } from 'react-native';
 
+import { SafetyBanner } from '@/components/domain';
 import { Loading } from '@/components/primitives';
 import { useMedicationsWithSafety } from '@/hooks';
 import { useCurrentParentStore } from '@/stores';
@@ -22,6 +23,8 @@ export default function ParentHome() {
   const alertCount = data?.safety.evidences.length ?? 0;
   // 정확한 다음 약 시간 계산은 Phase 2 알람 시스템 — 지금은 약장 첫 약 표시
   const nextMedication = data?.list.medications[0];
+  const decision = data?.safety.overall_decision;
+  const showSafetyBanner = decision === 'WARN' || decision === 'BLOCK';
 
   return (
     <View className="flex-1 bg-bg">
@@ -49,6 +52,14 @@ export default function ParentHome() {
             </Text>
           )}
         </View>
+
+        {showSafetyBanner && (
+          <SafetyBanner
+            decision={decision}
+            title="복용 중인 약 사이 주의가 필요해요"
+            subtitle="약장 탭에서 자세히 확인해주세요"
+          />
+        )}
       </ScrollView>
     </View>
   );
