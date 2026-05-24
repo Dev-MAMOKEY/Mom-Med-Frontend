@@ -1,16 +1,29 @@
-import { useLocalSearchParams } from 'expo-router';
-import { ScrollView, Text, View } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Plus } from 'lucide-react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { SafetyBanner } from '@/components/domain';
 import { Loading } from '@/components/primitives';
+import tokens from '@/design-tokens.json';
 import { useMedicationsWithSafety } from '@/hooks';
 import { useCurrentParentStore } from '@/stores';
+
+const fabIconColor = tokens.color.neutral.surface.value;
 
 // 부모 홈 — 인사 + 오늘 알람 카운트 (다음 약 카드·위험 배너·FAB는 후속 커밋)
 export default function ParentHome() {
   const { parentId } = useLocalSearchParams<{ parentId: string }>();
+  const router = useRouter();
   const displayName = useCurrentParentStore((s) => s.displayName);
   const { data, isLoading } = useMedicationsWithSafety(parentId ?? '');
+
+  // 약 추가 모달은 #39에서 본문·라우트 추가 — 추가되면 ts-expect-error 정리
+  const goAddMedication = () =>
+    router.push({
+      // @ts-expect-error: /(modals)/add-medication 라우트는 #39에서 추가됨
+      pathname: '/(modals)/add-medication',
+      params: { parentId: parentId ?? '' },
+    });
 
   if (isLoading) {
     return (
@@ -61,6 +74,15 @@ export default function ParentHome() {
           />
         )}
       </ScrollView>
+
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="약 추가"
+        onPress={goAddMedication}
+        className="absolute bottom-5 right-5 w-14 h-14 rounded-full bg-primary-bold items-center justify-center shadow"
+      >
+        <Plus size={28} color={fabIconColor} />
+      </Pressable>
     </View>
   );
 }
