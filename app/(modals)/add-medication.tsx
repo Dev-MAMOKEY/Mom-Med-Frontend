@@ -1,11 +1,15 @@
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { router, useLocalSearchParams } from 'expo-router';
 import { X } from 'lucide-react-native';
+import { useState } from 'react';
 import { Linking, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BarcodeScanner, PillImage } from '@/components/domain';
+import type { BarcodeScanResult } from '@/components/domain';
 import { Button, Loading } from '@/components/primitives';
 import tokens from '@/design-tokens.json';
+import { useDrugDetail } from '@/hooks';
 
 const closeIconColor = tokens.color.neutral.surface.value;
 
@@ -13,11 +17,21 @@ const closeIconColor = tokens.color.neutral.surface.value;
 export default function AddMedication() {
   const { parentId } = useLocalSearchParams<{ parentId: string }>();
   const [permission, requestPermission] = BarCodeScanner.usePermissions();
+  const [selectedItemSeq, setSelectedItemSeq] = useState<string | null>(null);
+  const { data: drug, isLoading: isDrugLoading } = useDrugDetail(
+    selectedItemSeq ?? '',
+  );
 
   // 닫기 → 약장으로 복귀
   const onClose = () => {
     if (router.canGoBack()) router.back();
   };
+
+  // 스캔 — mock 모드에선 바코드 값을 곧바로 itemSeq로 사용. 실 환경에선 백엔드 01 mapping API 호출 필요
+  const onScan = ({ data }: BarcodeScanResult) => setSelectedItemSeq(data);
+
+  // 다시 스캔 — 미리보기 해제 후 스캐너로 복귀
+  const onRescan = () => setSelectedItemSeq(null);
 
   // 상단 헤더 — 풀스크린 다크 모달 기준 흰색 X · 제목 · 우측 placeholder
   const header = (
@@ -82,13 +96,51 @@ export default function AddMedication() {
     );
   }
 
-  // 권한 허용 — 본문은 후속 커밋(스캐너·옵션·미리보기·BottomSheet)에서 채움
+  // 미리보기 모드 — 스캔/검색으로 itemSeq가 선택된 상태에서 약 정보 + 추가/다시 스캔 액션 표시
+  if (selectedItemSeq) {
+    return (
+      <SafeAreaView edges={['top']} className="flex-1 bg-text">
+        {header}
+        <View className="flex-1 items-center justify-center px-5 gap-4">
+          {isDrugLoading || !drug ? (
+            <Loading text="약 정보를 불러오는 중..." />
+          ) : (
+            <View className="w-full bg-surface rounded-xl p-6 items-center gap-3">
+              <PillImage
+                imageUrl={drug.pill_visual?.item_image}
+                drugName={drug.item_name}
+                size="lg"
+              />
+              <Text className="text-xl font-extrabold text-text text-center">
+                {drug.item_name}
+              </Text>
+              {drug.atc_code && (
+                <Text className="text-xs font-mono text-text-mute">
+                  ATC {drug.atc_code}
+                </Text>
+              )}
+              <View className="w-full gap-2 mt-2">
+                {/* "이 약 추가" 버튼은 useAddMedication 분기와 함께 후속 커밋에서 추가 */}
+                <Button label="다시 스캔" variant="ghost" onPress={onRescan} />
+              </View>
+            </View>
+          )}
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // 스캔 모드 — 카메라 뷰포트 + 가이드 박스 (옵션 버튼·BottomSheet은 후속 커밋)
   return (
     <SafeAreaView edges={['top']} className="flex-1 bg-text">
       {header}
-      <View className="flex-1 items-center justify-center">
-        <Text className="text-sm text-surface/70">스캐너 준비 중...</Text>
-        <Text className="text-xs text-surface/50 mt-1">parentId: {parentId}</Text>
+      <View className="flex-1 px-5 pt-2">
+        <View className="w-full" style={{ height: 380 }}>
+          <BarcodeScanner onScan={onScan} />
+        </View>
+        <Text className="text-xs text-surface/60 text-center mt-3">
+          parent: {parentId}
+        </Text>
       </View>
     </SafeAreaView>
   );
