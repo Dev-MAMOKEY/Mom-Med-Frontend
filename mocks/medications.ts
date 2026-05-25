@@ -357,3 +357,13 @@ export const mockAddMedication = async (
     },
   };
 };
+
+// ============================================================================
+// 6) 약 삭제 — 백엔드 04 DELETE /v1/parents/{id}/medications/{medication_id}
+//    safety-result(WARN) "제거" 액션·약 상세 삭제 버튼에서 사용
+// ============================================================================
+
+export const mockDeleteMedication = async (
+  _parentId: string,
+  _medicationId: string,
+): Promise<{ success: true }> => ({ success: true });
