@@ -1,13 +1,17 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import { Plus } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import type { Medication } from '@/api/types';
 import { Header, ScreenContainer } from '@/components';
 import { MedicationList, SafetyBanner } from '@/components/domain';
 import { EmptyState, Input, Loading } from '@/components/primitives';
+import tokens from '@/design-tokens.json';
 import { useMedicationsWithSafety } from '@/hooks';
 import { useCurrentParentStore } from '@/stores';
+
+const fabIconColor = tokens.color.neutral.surface.value;
 
 // 자녀 → 부모 약장 화면 (F2 데모 핵심) — useMedicationsWithSafety로 약장+사전 안전점검을 동시에 fetch
 export default function MedsScreen() {
@@ -92,36 +96,48 @@ export default function MedsScreen() {
   }
 
   return (
-    <ScreenContainer header={header}>
-      <View className="px-5 pt-1 pb-6 gap-3">
-        {/* 약장 전체 안전 점검 — ALLOW가 아닐 때만 풀배너 노출 */}
-        {safety.overall_decision !== 'ALLOW' && (
-          <SafetyBanner
-            decision={safety.overall_decision}
-            title="복용 중인 약 사이 주의가 필요해요"
+    <View className="flex-1 relative">
+      <ScreenContainer header={header}>
+        <View className="px-5 pt-1 pb-24 gap-3">
+          {/* 약장 전체 안전 점검 — ALLOW가 아닐 때만 풀배너 노출 */}
+          {safety.overall_decision !== 'ALLOW' && (
+            <SafetyBanner
+              decision={safety.overall_decision}
+              title="복용 중인 약 사이 주의가 필요해요"
+            />
+          )}
+
+          {/* 검색 바 — 약 이름이나 영문 성분으로 약장 내 클라이언트 필터링 */}
+          <Input
+            variant="search"
+            placeholder="약 이름이나 성분 검색"
+            value={query}
+            onChangeText={setQuery}
           />
-        )}
 
-        {/* 검색 바 — 약 이름이나 영문 성분으로 약장 내 클라이언트 필터링 */}
-        <Input
-          variant="search"
-          placeholder="약 이름이나 성분 검색"
-          value={query}
-          onChangeText={setQuery}
-        />
+          {/* 약 카드 리스트 — 항응고제 자동 최상단 정렬은 MedicationList가 처리.
+              검색 결과 0개일 때만 작은 EmptyState로 안내 (약장 자체 비어 있는 케이스는 위에서 처리됨) */}
+          <MedicationList
+            medications={filtered}
+            onItemPress={onMedicationPress}
+            emptyState={
+              query ? (
+                <EmptyState title={`"${query}" 검색 결과가 없어요`} />
+              ) : undefined
+            }
+          />
+        </View>
+      </ScreenContainer>
 
-        {/* 약 카드 리스트 — 항응고제 자동 최상단 정렬은 MedicationList가 처리.
-            검색 결과 0개일 때만 작은 EmptyState로 안내 (약장 자체 비어 있는 케이스는 위에서 처리됨) */}
-        <MedicationList
-          medications={filtered}
-          onItemPress={onMedicationPress}
-          emptyState={
-            query ? (
-              <EmptyState title={`"${query}" 검색 결과가 없어요`} />
-            ) : undefined
-          }
-        />
-      </View>
-    </ScreenContainer>
+      {/* FAB '+ 약 추가' — 우측 하단 고정 원형 버튼 (목업 v2 화면 5번 기준) */}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="약 추가"
+        onPress={goAddMedication}
+        className="absolute right-5 bottom-6 w-14 h-14 rounded-full bg-primary-bold items-center justify-center"
+      >
+        <Plus size={28} color={fabIconColor} strokeWidth={2.5} />
+      </Pressable>
+    </View>
   );
 }
