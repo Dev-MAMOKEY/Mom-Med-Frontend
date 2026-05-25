@@ -3,6 +3,7 @@ import { MoreVertical } from 'lucide-react-native';
 import { Pressable, View } from 'react-native';
 
 import { Header, ScreenContainer } from '@/components';
+import { PillCard } from '@/components/domain';
 import { EmptyState, Loading } from '@/components/primitives';
 import tokens from '@/design-tokens.json';
 import { useDrugDetail } from '@/hooks';
@@ -56,5 +57,13 @@ export default function MedicationDetail() {
     );
   }
 
-  return <ScreenContainer header={header}>{null}</ScreenContainer>;
+  return (
+    <ScreenContainer header={header}>
+      <View className="px-5 pt-2 pb-6">
+        {/* 알약 사진·제목·제조사·정보 그리드 4칸·주의사항·복용 정보 placeholder를 한 번에 조립.
+            DrugDetail에 dosage_schedule 필드가 없어 showDosage는 placeholder 문구(의사·약사 지시) 노출용 */}
+        <PillCard drug={drug} showCautions showDosage />
+      </View>
+    </ScreenContainer>
+  );
 }
