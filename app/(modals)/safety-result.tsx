@@ -5,7 +5,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import type { Evidence } from '@/api/types';
 import { ScreenContainer } from '@/components';
-import { PillImage, SafetyBanner } from '@/components/domain';
+import { PillImage, SafetyBanner, SafetyDetailCard } from '@/components/domain';
 import { EmptyState } from '@/components/primitives';
 import tokens from '@/design-tokens.json';
 import { useDrugDetail } from '@/hooks';
@@ -40,6 +40,15 @@ export default function SafetyResult() {
   // 비교 카드 — 충돌 약은 evidences의 conflicting_drug에서 첫 번째 발견 사용 (mock에선 동일 와파린 참조)
   const conflictingDrug = useMemo(
     () => evidences.find((e) => e.conflicting_drug)?.conflicting_drug,
+    [evidences],
+  );
+
+  // SafetyDetailCard는 DUR/NB만 표시(컴포넌트 시그니처 한계). patient_class는 현재 mock 시나리오에 없음 — 필요해지면 컴포넌트 확장
+  const displayEvidences = useMemo(
+    () =>
+      evidences.filter(
+        (e): e is Evidence & { source: 'DUR' | 'NB' } => e.source !== 'patient_class',
+      ),
     [evidences],
   );
 
@@ -114,6 +123,25 @@ export default function SafetyResult() {
                 </Text>
               </View>
             </View>
+          </View>
+        )}
+
+        {/* 사유 카드 리스트 — DUR/NB evidence를 좌측 severity 컬러 보더로 표시, 식약처 원문 인용 포함 */}
+        {displayEvidences.length > 0 && (
+          <View className="gap-2">
+            <Text className="text-sm font-bold text-text">
+              {decision === 'BLOCK' ? '⚠️ 차단 사유' : '⚠️ 주의 사유'}
+            </Text>
+            {displayEvidences.map((e, idx) => (
+              <SafetyDetailCard
+                key={`${e.source}-${idx}`}
+                source={e.source}
+                severity={e.severity}
+                message={e.message}
+                citation={e.citation}
+                citationSource={e.citation_source}
+              />
+            ))}
           </View>
         )}
       </View>
