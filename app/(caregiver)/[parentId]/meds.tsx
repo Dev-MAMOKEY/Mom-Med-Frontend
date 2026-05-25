@@ -1,10 +1,11 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 
 import type { Medication } from '@/api/types';
 import { Header, ScreenContainer } from '@/components';
 import { MedicationList, SafetyBanner } from '@/components/domain';
-import { EmptyState, Loading } from '@/components/primitives';
+import { EmptyState, Input, Loading } from '@/components/primitives';
 import { useMedicationsWithSafety } from '@/hooks';
 import { useCurrentParentStore } from '@/stores';
 
@@ -13,6 +14,19 @@ export default function MedsScreen() {
   const { parentId } = useLocalSearchParams<{ parentId: string }>();
   const displayName = useCurrentParentStore((s) => s.displayName);
   const { data, isLoading, error } = useMedicationsWithSafety(parentId);
+  const [query, setQuery] = useState('');
+
+  // 검색은 약 이름·영문 성분에 대해 trim·lowercase 부분 일치 (서버 사이드 검색은 useDrugSearch로 추후 교체)
+  const meds = data?.list.medications ?? [];
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return meds;
+    return meds.filter(
+      (m) =>
+        m.item_name.toLowerCase().includes(q) ||
+        (m.main_ingr_en?.toLowerCase().includes(q) ?? false),
+    );
+  }, [meds, query]);
 
   // 헤더 뒤로가기 — 스택이 비어 있으면 부모 목록으로 fallback
   const onBack = () => {
@@ -44,8 +58,7 @@ export default function MedsScreen() {
     );
   }
 
-  const { list, safety } = data;
-  const meds = list.medications;
+  const { safety } = data;
 
   // 약 카드 탭 → 약 상세 모달 (#37에서 실제 본문 구현)
   const onMedicationPress = (med: Medication) => {
@@ -66,8 +79,16 @@ export default function MedsScreen() {
           />
         )}
 
+        {/* 검색 바 — 약 이름이나 영문 성분으로 약장 내 클라이언트 필터링 */}
+        <Input
+          variant="search"
+          placeholder="약 이름이나 성분 검색"
+          value={query}
+          onChangeText={setQuery}
+        />
+
         {/* 약 카드 리스트 — 항응고제 자동 최상단 정렬은 MedicationList가 처리 */}
-        <MedicationList medications={meds} onItemPress={onMedicationPress} />
+        <MedicationList medications={filtered} onItemPress={onMedicationPress} />
       </View>
     </ScreenContainer>
   );
