@@ -68,6 +68,29 @@ export default function MedsScreen() {
     });
   };
 
+  // 약 추가 모달로 이동 — 빈 상태 CTA + FAB가 공유
+  const goAddMedication = () => {
+    router.push({
+      pathname: '/(modals)/add-medication',
+      params: { parentId },
+    });
+  };
+
+  // 약장 자체가 비어 있을 때 — 검색·배너 없이 큰 빈 상태 + 등록 CTA
+  if (meds.length === 0) {
+    return (
+      <ScreenContainer header={header}>
+        <View className="flex-1 items-center justify-center">
+          <EmptyState
+            title="등록된 약이 없어요"
+            description="첫 약을 추가해보세요"
+            cta={{ label: '+ 약 추가', onPress: goAddMedication }}
+          />
+        </View>
+      </ScreenContainer>
+    );
+  }
+
   return (
     <ScreenContainer header={header}>
       <View className="px-5 pt-1 pb-6 gap-3">
@@ -87,8 +110,17 @@ export default function MedsScreen() {
           onChangeText={setQuery}
         />
 
-        {/* 약 카드 리스트 — 항응고제 자동 최상단 정렬은 MedicationList가 처리 */}
-        <MedicationList medications={filtered} onItemPress={onMedicationPress} />
+        {/* 약 카드 리스트 — 항응고제 자동 최상단 정렬은 MedicationList가 처리.
+            검색 결과 0개일 때만 작은 EmptyState로 안내 (약장 자체 비어 있는 케이스는 위에서 처리됨) */}
+        <MedicationList
+          medications={filtered}
+          onItemPress={onMedicationPress}
+          emptyState={
+            query ? (
+              <EmptyState title={`"${query}" 검색 결과가 없어요`} />
+            ) : undefined
+          }
+        />
       </View>
     </ScreenContainer>
   );
