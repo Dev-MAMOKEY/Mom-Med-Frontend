@@ -1,15 +1,18 @@
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { router, useLocalSearchParams } from 'expo-router';
 import { X } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import { Linking, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import type { Medication } from '@/api/types';
 import { BarcodeScanner, PillImage } from '@/components/domain';
 import type { BarcodeScanResult } from '@/components/domain';
-import { Button, Loading } from '@/components/primitives';
+import { BottomSheet, Button, Input, ListItem, Loading } from '@/components/primitives';
+import type { BottomSheetRef } from '@/components/primitives';
 import tokens from '@/design-tokens.json';
-import { useDrugDetail } from '@/hooks';
+import { useDrugDetail, useDrugSearch } from '@/hooks';
 
 const closeIconColor = tokens.color.neutral.surface.value;
 const TOAST_MS = 1500;
@@ -23,6 +26,20 @@ export default function AddMedication() {
     selectedItemSeq ?? '',
   );
 
+  // 검색 BottomSheet 상태 — useDrugSearch는 query.length >= 2일 때만 활성
+  const sheetRef = useRef<BottomSheetRef>(null);
+  const snapPoints = useMemo(() => ['75%'], []);
+  const [query, setQuery] = useState('');
+  const { data: searchResults, isFetching: isSearching } = useDrugSearch(query);
+
+  // 인라인 토스트 — 1.5초 후 자동 해제 (medication-detail.tsx와 동일 패턴)
+  const [toast, setToast] = useState<string | null>(null);
+  useEffect(() => {
+    if (!toast) return;
+    const id = setTimeout(() => setToast(null), TOAST_MS);
+    return () => clearTimeout(id);
+  }, [toast]);
+
   // 닫기 → 약장으로 복귀
   const onClose = () => {
     if (router.canGoBack()) router.back();
@@ -34,18 +51,19 @@ export default function AddMedication() {
   // 다시 스캔 — 미리보기 해제 후 스캐너로 복귀
   const onRescan = () => setSelectedItemSeq(null);
 
-  // 인라인 토스트 — 1.5초 후 자동 해제 (medication-detail.tsx와 동일 패턴)
-  const [toast, setToast] = useState<string | null>(null);
-  useEffect(() => {
-    if (!toast) return;
-    const id = setTimeout(() => setToast(null), TOAST_MS);
-    return () => clearTimeout(id);
-  }, [toast]);
-
-  // 손전등·앨범은 본 PR 범위 밖 — "준비 중" 토스트만. 직접 입력은 후속 커밋에서 BottomSheet 연결
+  // 손전등·앨범은 본 PR 범위 밖 — "준비 중" 토스트만
   const onTorch = () => setToast('손전등은 준비 중이에요');
   const onAlbum = () => setToast('앨범 선택은 준비 중이에요');
-  const onDirectInput = () => setToast('직접 입력은 준비 중이에요');
+
+  // 직접 입력 — BottomSheet 오픈. 권한 거부 분기에서도 동일 핸들러 사용
+  const onDirectInput = () => sheetRef.current?.expand();
+
+  // 검색 결과 탭 → 미리보기 모드로 전환 + 시트 닫기 + 검색어 초기화
+  const onSearchResultPress = (med: Medication) => {
+    setSelectedItemSeq(med.item_seq);
+    sheetRef.current?.close();
+    setQuery('');
+  };
 
   // 상단 헤더 — 풀스크린 다크 모달 기준 흰색 X · 제목 · 우측 placeholder
   const header = (
@@ -63,103 +81,98 @@ export default function AddMedication() {
     </View>
   );
 
-  // 권한 응답 대기 — usePermissions가 null을 반환하는 첫 렌더
-  if (!permission) {
-    return (
-      <SafeAreaView edges={['top']} className="flex-1 bg-text">
-        {header}
-        <View className="flex-1 items-center justify-center">
-          <Loading text="카메라 권한을 확인하는 중..." />
-        </View>
-      </SafeAreaView>
-    );
-  }
+  // 상태별 본문 — 권한 응답 대기 → 권한 거부 → 미리보기 → 스캔
+  let content: ReactNode;
 
-  // 권한 미허용 — 권한 요청 또는 직접 입력으로 진행 안내
-  if (!permission.granted) {
+  if (!permission) {
+    content = (
+      <View className="flex-1 items-center justify-center">
+        <Loading text="카메라 권한을 확인하는 중..." />
+      </View>
+    );
+  } else if (!permission.granted) {
     const isPermanentlyDenied = !permission.canAskAgain;
     const onPermissionAction = () => {
       if (isPermanentlyDenied) Linking.openSettings();
       else requestPermission();
     };
 
-    return (
-      <SafeAreaView edges={['top']} className="flex-1 bg-text">
-        {header}
-        <View className="flex-1 items-center justify-center px-6 gap-4">
-          <Text className="text-lg font-bold text-surface text-center">
-            카메라 권한이 필요해요
-          </Text>
-          <Text className="text-sm text-surface/70 text-center">
-            약 포장의 바코드·QR을 스캔하려면 카메라 접근이 필요합니다.
-          </Text>
-          <View className="w-full gap-2 mt-4">
-            <Button
-              label={isPermanentlyDenied ? '설정 열기' : '권한 요청'}
-              variant="primary"
-              onPress={onPermissionAction}
-            />
-            <Button
-              label="직접 입력으로 진행"
-              variant="ghost"
-              onPress={onDirectInput}
-            />
-          </View>
+    content = (
+      <View className="flex-1 items-center justify-center px-6 gap-4">
+        <Text className="text-lg font-bold text-surface text-center">
+          카메라 권한이 필요해요
+        </Text>
+        <Text className="text-sm text-surface/70 text-center">
+          약 포장의 바코드·QR을 스캔하려면 카메라 접근이 필요합니다.
+        </Text>
+        <View className="w-full gap-2 mt-4">
+          <Button
+            label={isPermanentlyDenied ? '설정 열기' : '권한 요청'}
+            variant="primary"
+            onPress={onPermissionAction}
+          />
+          <Button
+            label="직접 입력으로 진행"
+            variant="ghost"
+            onPress={onDirectInput}
+          />
         </View>
-      </SafeAreaView>
+      </View>
     );
-  }
-
-  // 미리보기 모드 — 스캔/검색으로 itemSeq가 선택된 상태에서 약 정보 + 추가/다시 스캔 액션 표시
-  if (selectedItemSeq) {
-    return (
-      <SafeAreaView edges={['top']} className="flex-1 bg-text">
-        {header}
-        <View className="flex-1 items-center justify-center px-5 gap-4">
-          {isDrugLoading || !drug ? (
-            <Loading text="약 정보를 불러오는 중..." />
-          ) : (
-            <View className="w-full bg-surface rounded-xl p-6 items-center gap-3">
-              <PillImage
-                imageUrl={drug.pill_visual?.item_image}
-                drugName={drug.item_name}
-                size="lg"
-              />
-              <Text className="text-xl font-extrabold text-text text-center">
-                {drug.item_name}
+  } else if (selectedItemSeq) {
+    content = (
+      <View className="flex-1 items-center justify-center px-5 gap-4">
+        {isDrugLoading || !drug ? (
+          <Loading text="약 정보를 불러오는 중..." />
+        ) : (
+          <View className="w-full bg-surface rounded-xl p-6 items-center gap-3">
+            <PillImage
+              imageUrl={drug.pill_visual?.item_image}
+              drugName={drug.item_name}
+              size="lg"
+            />
+            <Text className="text-xl font-extrabold text-text text-center">
+              {drug.item_name}
+            </Text>
+            {drug.atc_code && (
+              <Text className="text-xs font-mono text-text-mute">
+                ATC {drug.atc_code}
               </Text>
-              {drug.atc_code && (
-                <Text className="text-xs font-mono text-text-mute">
-                  ATC {drug.atc_code}
-                </Text>
-              )}
-              <View className="w-full gap-2 mt-2">
-                {/* "이 약 추가" 버튼은 useAddMedication 분기와 함께 후속 커밋에서 추가 */}
-                <Button label="다시 스캔" variant="ghost" onPress={onRescan} />
-              </View>
+            )}
+            <View className="w-full gap-2 mt-2">
+              {/* "이 약 추가" 버튼은 useAddMedication 분기와 함께 후속 커밋에서 추가 */}
+              <Button label="다시 스캔" variant="ghost" onPress={onRescan} />
             </View>
-          )}
-        </View>
-      </SafeAreaView>
+          </View>
+        )}
+      </View>
     );
-  }
-
-  // 스캔 모드 — 카메라 뷰포트 + 가이드 박스 + 옵션 버튼 (직접 입력 BottomSheet은 후속 커밋)
-  return (
-    <SafeAreaView edges={['top']} className="flex-1 bg-text">
-      {header}
+  } else {
+    content = (
       <View className="flex-1 px-5 pt-2">
         <View className="w-full" style={{ height: 380 }}>
           <BarcodeScanner onScan={onScan} />
         </View>
 
-        {/* 옵션 3분할 — 손전등·앨범은 placeholder, 직접 입력만 BottomSheet 트리거(후속 커밋에서 전환) */}
+        {/* 옵션 3분할 — 손전등·앨범은 placeholder, 직접 입력은 BottomSheet 오픈 */}
         <View className="mt-5 flex-row gap-2">
           <ScanOption emoji="🔦" label="손전등" onPress={onTorch} />
           <ScanOption emoji="🖼️" label="앨범" onPress={onAlbum} />
           <ScanOption emoji="⌨️" label="직접 입력" onPress={onDirectInput} />
         </View>
       </View>
+    );
+  }
+
+  // parentId는 후속 커밋의 useAddMedication에서 사용 — 현재는 사용처가 없어 placeholder ref
+  void parentId;
+
+  const results = searchResults?.results ?? [];
+
+  return (
+    <SafeAreaView edges={['top']} className="flex-1 bg-text">
+      {header}
+      {content}
 
       {/* 인라인 토스트 — top-14 절대 배치, 다크 배경 위 흰 카드 */}
       {toast && (
@@ -167,6 +180,46 @@ export default function AddMedication() {
           <Text className="text-text font-bold text-center">{toast}</Text>
         </View>
       )}
+
+      {/* 직접 입력 BottomSheet — 검색은 useDrugSearch가 query.length >= 2에서만 활성 */}
+      <BottomSheet
+        ref={sheetRef}
+        snapPoints={snapPoints}
+        enablePanDownToClose
+      >
+        <View className="px-5 pt-2 pb-6 gap-3">
+          <Text className="text-base font-bold text-text">약 이름 검색</Text>
+          <Input
+            variant="search"
+            placeholder="약 이름이나 성분 (2글자 이상)"
+            value={query}
+            onChangeText={setQuery}
+          />
+
+          {query.length >= 2 && isSearching && (
+            <View className="py-4">
+              <Loading size="sm" />
+            </View>
+          )}
+
+          {query.length >= 2 && !isSearching && results.length === 0 && (
+            <Text className="text-sm text-text-mute text-center py-4">
+              &quot;{query}&quot; 검색 결과가 없어요
+            </Text>
+          )}
+
+          <View className="gap-1">
+            {results.map((med) => (
+              <ListItem
+                key={med.item_seq}
+                title={med.item_name}
+                subtitle={med.main_ingr_en ?? ''}
+                onPress={() => onSearchResultPress(med)}
+              />
+            ))}
+          </View>
+        </View>
+      </BottomSheet>
     </SafeAreaView>
   );
 }
