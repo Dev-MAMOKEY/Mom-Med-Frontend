@@ -1,8 +1,9 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
 
+import type { Medication } from '@/api/types';
 import { Header, ScreenContainer } from '@/components';
-import { SafetyBanner } from '@/components/domain';
+import { MedicationList, SafetyBanner } from '@/components/domain';
 import { EmptyState, Loading } from '@/components/primitives';
 import { useMedicationsWithSafety } from '@/hooks';
 import { useCurrentParentStore } from '@/stores';
@@ -43,7 +44,16 @@ export default function MedsScreen() {
     );
   }
 
-  const { safety } = data;
+  const { list, safety } = data;
+  const meds = list.medications;
+
+  // 약 카드 탭 → 약 상세 모달 (#37에서 실제 본문 구현)
+  const onMedicationPress = (med: Medication) => {
+    router.push({
+      pathname: '/(modals)/medication-detail',
+      params: { itemSeq: med.item_seq, parentId },
+    });
+  };
 
   return (
     <ScreenContainer header={header}>
@@ -55,6 +65,9 @@ export default function MedsScreen() {
             title="복용 중인 약 사이 주의가 필요해요"
           />
         )}
+
+        {/* 약 카드 리스트 — 항응고제 자동 최상단 정렬은 MedicationList가 처리 */}
+        <MedicationList medications={meds} onItemPress={onMedicationPress} />
       </View>
     </ScreenContainer>
   );
