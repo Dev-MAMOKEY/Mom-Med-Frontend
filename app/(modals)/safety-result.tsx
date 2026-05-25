@@ -1,16 +1,18 @@
+import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { X } from 'lucide-react-native';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import type { Evidence } from '@/api/types';
 import { ScreenContainer } from '@/components';
 import { PillImage, SafetyBanner, SafetyDetailCard } from '@/components/domain';
-import { EmptyState } from '@/components/primitives';
+import { Button, EmptyState } from '@/components/primitives';
 import tokens from '@/design-tokens.json';
-import { useDrugDetail } from '@/hooks';
+import { useDeleteMedication, useDrugDetail } from '@/hooks';
 
 const closeIconColor = tokens.color.neutral.text.value;
+const TOAST_MS = 1500;
 
 // 안전판정 결과 모달 — add-medication에서 BLOCK/WARN 결정 시 router.replace로 진입.
 // evidences는 #39가 JSON.stringify로 params에 첨부, attempted drug는 itemSeq로 useDrugDetail 재조회 (params 부담 회피)
@@ -36,6 +38,24 @@ export default function SafetyResult() {
   }, [params.evidences]);
 
   const { data: attemptedDrug } = useDrugDetail(params.itemSeq ?? '');
+  const deleteMed = useDeleteMedication(params.parentId ?? '');
+
+  // 인라인 토스트 — 제거 mutation 결과 안내용 (medication-detail·add-medication과 동일 패턴)
+  const [toast, setToast] = useState<string | null>(null);
+  useEffect(() => {
+    if (!toast) return;
+    const id = setTimeout(() => setToast(null), TOAST_MS);
+    return () => clearTimeout(id);
+  }, [toast]);
+
+  // 진입 시 Haptics — BLOCK은 Error, WARN은 Warning. 웹은 no-op
+  useEffect(() => {
+    if (params.decision === 'BLOCK') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } else if (params.decision === 'WARN') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    }
+  }, [params.decision]);
 
   // 비교 카드 — 충돌 약은 evidences의 conflicting_drug에서 첫 번째 발견 사용 (mock에선 동일 와파린 참조)
   const conflictingDrug = useMemo(
@@ -84,12 +104,30 @@ export default function SafetyResult() {
   const crossClass = decision === 'BLOCK' ? 'text-danger' : 'text-warning';
   const attemptedLabelClass = decision === 'BLOCK' ? 'text-danger' : 'text-warning';
 
-  // 본문 — 사유·대처 안내·하단 액션은 후속 커밋에서 조립
-  void params.medicationId;
+  // 닫기 액션 — BLOCK "알겠어요", WARN "확인했어요" 공용
+  const handleConfirm = () => {
+    if (router.canGoBack()) router.back();
+  };
+
+  // WARN의 "제거" — useDeleteMedication.mutate. medication_id가 없으면(데이터 손실) 그냥 닫기
+  const handleRemove = () => {
+    if (!params.medicationId) {
+      handleConfirm();
+      return;
+    }
+    deleteMed.mutate(params.medicationId, {
+      onSuccess: () => {
+        setToast(`${attemptedDrug?.item_name ?? '약'}을(를) 제거했어요`);
+        setTimeout(handleConfirm, TOAST_MS);
+      },
+      onError: () => setToast('제거에 실패했어요'),
+    });
+  };
 
   return (
-    <ScreenContainer header={header}>
-      <View className="px-5 pt-2 pb-24 gap-3">
+    <View className="flex-1 relative">
+      <ScreenContainer header={header}>
+        <View className="px-5 pt-2 pb-24 gap-3">
         <SafetyBanner decision={decision} subtitle={bannerSubtitle} />
 
         {/* 약 비교 카드 — 복용중 약 ✕ 추가 시도 약. 둘 다 없으면 카드 자체를 숨김 */}
@@ -156,7 +194,47 @@ export default function SafetyResult() {
               : '주치의나 약사에게 이 결과를 보여주고 함께 복용해도 괜찮은지 확인해주세요.'}
           </Text>
         </View>
+        </View>
+      </ScreenContainer>
+
+      {/* 하단 액션 — v1.1: BLOCK "알겠어요" 단일 (mockup의 bg-text 다크 버튼), WARN "확인했어요"/"제거" 이중 */}
+      <View className="absolute bottom-6 left-0 right-0 px-5">
+        {decision === 'BLOCK' ? (
+          <Pressable
+            accessibilityRole="button"
+            onPress={handleConfirm}
+            className="w-full bg-text rounded-md py-4 items-center justify-center"
+          >
+            <Text className="text-base font-bold text-surface">알겠어요</Text>
+          </Pressable>
+        ) : (
+          <View className="flex-row gap-2">
+            <View className="flex-1">
+              <Button
+                label="확인했어요"
+                variant="secondary"
+                onPress={handleConfirm}
+                disabled={deleteMed.isPending}
+              />
+            </View>
+            <View className="flex-1">
+              <Button
+                label="제거"
+                variant="primary"
+                loading={deleteMed.isPending}
+                onPress={handleRemove}
+              />
+            </View>
+          </View>
+        )}
       </View>
-    </ScreenContainer>
+
+      {/* 인라인 토스트 — 제거 mutation 결과 */}
+      {toast && (
+        <View className="absolute top-14 left-5 right-5 bg-text rounded-md px-4 py-3">
+          <Text className="text-surface font-bold text-center">{toast}</Text>
+        </View>
+      )}
+    </View>
   );
 }
