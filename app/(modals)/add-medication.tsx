@@ -6,13 +6,14 @@ import type { ReactNode } from 'react';
 import { Linking, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import type { Medication } from '@/api/types';
+import { SafetyBlockError } from '@/api/client';
+import type { BlockErrorBody, Medication, MedicationSource } from '@/api/types';
 import { BarcodeScanner, PillImage } from '@/components/domain';
 import type { BarcodeScanResult } from '@/components/domain';
 import { BottomSheet, Button, Input, ListItem, Loading } from '@/components/primitives';
 import type { BottomSheetRef } from '@/components/primitives';
 import tokens from '@/design-tokens.json';
-import { useDrugDetail, useDrugSearch } from '@/hooks';
+import { useAddMedication, useDrugDetail, useDrugSearch } from '@/hooks';
 
 const closeIconColor = tokens.color.neutral.surface.value;
 const TOAST_MS = 1500;
@@ -22,8 +23,13 @@ export default function AddMedication() {
   const { parentId } = useLocalSearchParams<{ parentId: string }>();
   const [permission, requestPermission] = BarCodeScanner.usePermissions();
   const [selectedItemSeq, setSelectedItemSeq] = useState<string | null>(null);
+  // 추가 mutation의 source는 진입 경로(스캔/직접 입력)에 따라 분기 — 백엔드 04 patient_medications.source CHECK
+  const [selectedSource, setSelectedSource] = useState<MedicationSource>('scan');
   const { data: drug, isLoading: isDrugLoading } = useDrugDetail(
     selectedItemSeq ?? '',
+  );
+  const { mutate: addMedication, isPending: isAdding } = useAddMedication(
+    parentId ?? '',
   );
 
   // 검색 BottomSheet 상태 — useDrugSearch는 query.length >= 2일 때만 활성
@@ -46,7 +52,10 @@ export default function AddMedication() {
   };
 
   // 스캔 — mock 모드에선 바코드 값을 곧바로 itemSeq로 사용. 실 환경에선 백엔드 01 mapping API 호출 필요
-  const onScan = ({ data }: BarcodeScanResult) => setSelectedItemSeq(data);
+  const onScan = ({ data }: BarcodeScanResult) => {
+    setSelectedSource('scan');
+    setSelectedItemSeq(data);
+  };
 
   // 다시 스캔 — 미리보기 해제 후 스캐너로 복귀
   const onRescan = () => setSelectedItemSeq(null);
@@ -60,9 +69,61 @@ export default function AddMedication() {
 
   // 검색 결과 탭 → 미리보기 모드로 전환 + 시트 닫기 + 검색어 초기화
   const onSearchResultPress = (med: Medication) => {
+    setSelectedSource('manual');
     setSelectedItemSeq(med.item_seq);
     sheetRef.current?.close();
     setQuery('');
+  };
+
+  // "이 약 추가" — useAddMedication.mutate + ALLOW/WARN/BLOCK 분기
+  // - ALLOW: 토스트 + 약장 복귀
+  // - WARN: 약 추가됨 + safety-result 모달로 router.replace (evidences는 JSON.stringify로 params 전달)
+  // - BLOCK: SafetyBlockError throw 시 safety-result 모달 (약 미추가)
+  const handleAdd = () => {
+    if (!selectedItemSeq || !drug) return;
+    addMedication(
+      { item_seq: selectedItemSeq, source: selectedSource },
+      {
+        onSuccess: (res) => {
+          if (res.safety_check.decision === 'ALLOW') {
+            setToast(`${drug.item_name} 추가 완료`);
+            setTimeout(() => {
+              if (router.canGoBack()) router.back();
+            }, TOAST_MS);
+            return;
+          }
+          // WARN — 약은 이미 추가됨, 사용자에게 결과 안내
+          router.replace({
+            pathname: '/(modals)/safety-result',
+            params: {
+              decision: 'WARN',
+              parentId: parentId ?? '',
+              itemSeq: selectedItemSeq,
+              medicationId: res.medication_id,
+              evidences: JSON.stringify(res.safety_check.evidences),
+            },
+          });
+        },
+        onError: (err) => {
+          if (err instanceof SafetyBlockError) {
+            // payload 타입은 common.ts의 placeholder(verdict: unknown)라 safety.ts의 typed BlockErrorBody로 좁힌다
+            const body = err.payload as BlockErrorBody;
+            // BLOCK — 약 미추가, 사유와 함께 결과 모달
+            router.replace({
+              pathname: '/(modals)/safety-result',
+              params: {
+                decision: 'BLOCK',
+                parentId: parentId ?? '',
+                itemSeq: selectedItemSeq,
+                evidences: JSON.stringify(body.verdict.evidences),
+              },
+            });
+            return;
+          }
+          setToast('약 추가에 실패했어요');
+        },
+      },
+    );
   };
 
   // 상단 헤더 — 풀스크린 다크 모달 기준 흰색 X · 제목 · 우측 placeholder
@@ -140,8 +201,18 @@ export default function AddMedication() {
               </Text>
             )}
             <View className="w-full gap-2 mt-2">
-              {/* "이 약 추가" 버튼은 useAddMedication 분기와 함께 후속 커밋에서 추가 */}
-              <Button label="다시 스캔" variant="ghost" onPress={onRescan} />
+              <Button
+                label="이 약 추가"
+                variant="primary"
+                loading={isAdding}
+                onPress={handleAdd}
+              />
+              <Button
+                label="다시 스캔"
+                variant="ghost"
+                disabled={isAdding}
+                onPress={onRescan}
+              />
             </View>
           </View>
         )}
@@ -163,9 +234,6 @@ export default function AddMedication() {
       </View>
     );
   }
-
-  // parentId는 후속 커밋의 useAddMedication에서 사용 — 현재는 사용처가 없어 placeholder ref
-  void parentId;
 
   const results = searchResults?.results ?? [];
 
