@@ -17,10 +17,9 @@ export default function ParentHome() {
   const displayName = useCurrentParentStore((s) => s.displayName);
   const { data, isLoading } = useMedicationsWithSafety(parentId ?? '');
 
-  // 약 추가 모달은 #39에서 본문·라우트 추가 — 추가되면 ts-expect-error 정리
+  // 약 추가 모달 — 본문은 #39에서 채워짐, 라우트 placeholder는 #35에서 추가됨
   const goAddMedication = () =>
     router.push({
-      // @ts-expect-error: /(modals)/add-medication 라우트는 #39에서 추가됨
       pathname: '/(modals)/add-medication',
       params: { parentId: parentId ?? '' },
     });
