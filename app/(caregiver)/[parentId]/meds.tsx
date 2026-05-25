@@ -2,6 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
 
 import { Header, ScreenContainer } from '@/components';
+import { SafetyBanner } from '@/components/domain';
 import { EmptyState, Loading } from '@/components/primitives';
 import { useMedicationsWithSafety } from '@/hooks';
 import { useCurrentParentStore } from '@/stores';
@@ -42,5 +43,19 @@ export default function MedsScreen() {
     );
   }
 
-  return <ScreenContainer header={header}>{null}</ScreenContainer>;
+  const { safety } = data;
+
+  return (
+    <ScreenContainer header={header}>
+      <View className="px-5 pt-1 pb-6 gap-3">
+        {/* 약장 전체 안전 점검 — ALLOW가 아닐 때만 풀배너 노출 */}
+        {safety.overall_decision !== 'ALLOW' && (
+          <SafetyBanner
+            decision={safety.overall_decision}
+            title="복용 중인 약 사이 주의가 필요해요"
+          />
+        )}
+      </View>
+    </ScreenContainer>
+  );
 }
