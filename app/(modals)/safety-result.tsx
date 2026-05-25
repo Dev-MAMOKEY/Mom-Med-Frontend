@@ -144,6 +144,18 @@ export default function SafetyResult() {
             ))}
           </View>
         )}
+
+        {/* 대처 안내 — 본 PR에선 자동 알림 연동이 없어 결과를 들고 의사·약사 상담을 권유 */}
+        <View className="bg-info-soft rounded-md p-3">
+          <Text className="text-xs font-bold text-info mb-1">
+            💬 어떻게 해야 하나요?
+          </Text>
+          <Text className="text-[11px] text-text-soft leading-relaxed">
+            {decision === 'BLOCK'
+              ? '처방하신 의사·약사에게 알리고 대체약을 상의해주세요.'
+              : '주치의나 약사에게 이 결과를 보여주고 함께 복용해도 괜찮은지 확인해주세요.'}
+          </Text>
+        </View>
       </View>
     </ScreenContainer>
   );
