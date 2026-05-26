@@ -15,7 +15,11 @@ const fabIconColor = tokens.color.neutral.surface.value;
 
 // 자녀 → 부모 약장 화면 (F2 데모 핵심) — useMedicationsWithSafety로 약장+사전 안전점검을 동시에 fetch
 export default function MedsScreen() {
-  const { parentId } = useLocalSearchParams<{ parentId: string }>();
+  // Tabs(자식) 화면에서 [parentId] 동적 세그먼트가 useLocalSearchParams로 안 들어오는 케이스가 있어
+  // store(_layout이 URL 변화에 맞춰 sync)를 fallback으로 사용
+  const { parentId: urlParentId } = useLocalSearchParams<{ parentId: string }>();
+  const storeParentId = useCurrentParentStore((s) => s.parentId);
+  const parentId = urlParentId || storeParentId || '';
   const displayName = useCurrentParentStore((s) => s.displayName);
   const { data, isLoading, error } = useMedicationsWithSafety(parentId);
   const [query, setQuery] = useState('');

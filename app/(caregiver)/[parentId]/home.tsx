@@ -12,10 +12,13 @@ const fabIconColor = tokens.color.neutral.surface.value;
 
 // 부모 홈 — 인사 + 오늘 알람 카운트 (다음 약 카드·위험 배너·FAB는 후속 커밋)
 export default function ParentHome() {
-  const { parentId } = useLocalSearchParams<{ parentId: string }>();
+  // Tabs(자식) 화면에서 [parentId] 동적 세그먼트가 useLocalSearchParams로 안 들어오는 케이스 대비 store fallback
+  const { parentId: urlParentId } = useLocalSearchParams<{ parentId: string }>();
+  const storeParentId = useCurrentParentStore((s) => s.parentId);
+  const parentId = urlParentId || storeParentId || '';
   const router = useRouter();
   const displayName = useCurrentParentStore((s) => s.displayName);
-  const { data, isLoading } = useMedicationsWithSafety(parentId ?? '');
+  const { data, isLoading } = useMedicationsWithSafety(parentId);
 
   // 약 추가 모달 — 본문은 #39에서 채워짐, 라우트 placeholder는 #35에서 추가됨
   const goAddMedication = () =>
