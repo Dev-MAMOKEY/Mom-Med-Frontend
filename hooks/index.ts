@@ -7,3 +7,4 @@ export { useMedicationsWithSafety } from './useMedicationsWithSafety';
 export { useDrugDetail } from './useDrugDetail';
 export { useDrugSearch } from './useDrugSearch';
 export { useAddMedication } from './useAddMedication';
+export { useDeleteMedication } from './useDeleteMedication';

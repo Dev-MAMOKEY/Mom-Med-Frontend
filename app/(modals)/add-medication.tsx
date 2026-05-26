@@ -65,13 +65,13 @@ export default function AddMedication() {
   const onAlbum = () => setToast('앨범 선택은 준비 중이에요');
 
   // 직접 입력 — BottomSheet 오픈. 권한 거부 분기에서도 동일 핸들러 사용
-  const onDirectInput = () => sheetRef.current?.expand();
+  const onDirectInput = () => sheetRef.current?.present();
 
   // 검색 결과 탭 → 미리보기 모드로 전환 + 시트 닫기 + 검색어 초기화
   const onSearchResultPress = (med: Medication) => {
     setSelectedSource('manual');
     setSelectedItemSeq(med.item_seq);
-    sheetRef.current?.close();
+    sheetRef.current?.dismiss();
     setQuery('');
   };
 

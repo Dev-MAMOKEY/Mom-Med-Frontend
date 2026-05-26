@@ -32,8 +32,8 @@ export function ParentSwitcher({
   const current = parents.find((p) => p.parent_id === currentParentId);
   const displayName = current?.display_name ?? '부모 선택';
 
-  const open = () => sheetRef.current?.expand();
-  const close = () => sheetRef.current?.close();
+  const open = () => sheetRef.current?.present();
+  const close = () => sheetRef.current?.dismiss();
 
   const handleSelect = (parentId: string) => {
     onSwitch(parentId);
