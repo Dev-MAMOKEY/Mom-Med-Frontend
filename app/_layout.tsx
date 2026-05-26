@@ -40,8 +40,9 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
-        <BottomSheetModalProvider>
-          <PhoneFrame>
+        <PhoneFrame>
+          {/* BottomSheetModalProvider는 PhoneFrame 안쪽이어야 함 — portal이 phone frame 너머로 튀어나가지 않도록 */}
+          <BottomSheetModalProvider>
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="index" />
               <Stack.Screen name="demo" />
@@ -50,8 +51,8 @@ export default function RootLayout() {
               <Stack.Screen name="(caregiver)" />
               <Stack.Screen name="(modals)" options={{ presentation: 'modal' }} />
             </Stack>
-          </PhoneFrame>
-        </BottomSheetModalProvider>
+          </BottomSheetModalProvider>
+        </PhoneFrame>
       </QueryClientProvider>
     </GestureHandlerRootView>
   );
