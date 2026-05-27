@@ -2,14 +2,12 @@ import { useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
 
+import type { ConditionDrugWarning } from '@/api/types';
 import type { Medication } from '@/api/types/medication';
 import { isAnticoagulant } from '@/api/types/safety';
 import { EmptyState } from '@/components/primitives';
 import { MedicationListItem } from './MedicationListItem';
-import type {
-  ConditionDrugWarning,
-  MedicationListItemVariant,
-} from './MedicationListItem';
+import type { MedicationListItemVariant } from './MedicationListItem';
 
 export interface MedicationListProps {
   medications: Medication[];

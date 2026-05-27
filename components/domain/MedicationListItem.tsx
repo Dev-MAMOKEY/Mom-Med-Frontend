@@ -2,16 +2,10 @@ import { Pressable, Text, View } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 
 import tokens from '@/design-tokens.json';
+import type { ConditionDrugWarning } from '@/api/types';
 import type { Medication } from '@/api/types/medication';
 import { isAnticoagulant } from '@/api/types/safety';
 import { PillImage } from './PillImage';
-
-// ConditionDrugWarning은 F3에서 정의 예정 — 임시 타입
-export type ConditionDrugWarning = {
-  condition_code: string;
-  severity: 'high' | 'medium' | 'low';
-  message: string;
-};
 
 export type MedicationListItemVariant = 'default' | 'compact';
 
