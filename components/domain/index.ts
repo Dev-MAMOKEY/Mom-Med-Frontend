@@ -12,7 +12,6 @@ export { MedicationListItem } from './MedicationListItem';
 export type {
   MedicationListItemProps,
   MedicationListItemVariant,
-  ConditionDrugWarning,
 } from './MedicationListItem';
 
 export { MedicationList } from './MedicationList';

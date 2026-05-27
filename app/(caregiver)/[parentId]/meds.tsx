@@ -8,12 +8,12 @@ import { Header, ScreenContainer } from '@/components';
 import { MedicationList, SafetyBanner } from '@/components/domain';
 import { EmptyState, Input, Loading } from '@/components/primitives';
 import tokens from '@/design-tokens.json';
-import { useMedicationsWithSafety } from '@/hooks';
+import { useMedicationsWithWarnings } from '@/hooks';
 import { useCurrentParentStore } from '@/stores';
 
 const fabIconColor = tokens.color.neutral.surface.value;
 
-// 자녀 → 부모 약장 화면 (F2 데모 핵심) — useMedicationsWithSafety로 약장+사전 안전점검을 동시에 fetch
+// 자녀 → 부모 약장 화면 (F2 데모 핵심) — useMedicationsWithWarnings로 약장+안전점검+질병경고를 동시에 fetch
 export default function MedsScreen() {
   // Tabs(자식) 화면에서 [parentId] 동적 세그먼트가 useLocalSearchParams로 안 들어오는 케이스가 있어
   // store(_layout이 URL 변화에 맞춰 sync)를 fallback으로 사용
@@ -21,20 +21,20 @@ export default function MedsScreen() {
   const storeParentId = useCurrentParentStore((s) => s.parentId);
   const parentId = urlParentId || storeParentId || '';
   const displayName = useCurrentParentStore((s) => s.displayName);
-  const { data, isLoading, error } = useMedicationsWithSafety(parentId);
+  const { data, isLoading, error } = useMedicationsWithWarnings(parentId);
   const [query, setQuery] = useState('');
 
   // 검색은 약 이름·영문 성분에 대해 trim·lowercase 부분 일치 (서버 사이드 검색은 useDrugSearch로 추후 교체)
-  const meds = data?.list.medications ?? [];
+  const items = data?.medicationsWithWarnings ?? [];
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return meds;
-    return meds.filter(
-      (m) =>
+    if (!q) return items;
+    return items.filter(
+      ({ medication: m }) =>
         m.item_name.toLowerCase().includes(q) ||
         (m.main_ingr_en?.toLowerCase().includes(q) ?? false),
     );
-  }, [meds, query]);
+  }, [items, query]);
 
   // 헤더 뒤로가기 — 스택이 비어 있으면 부모 목록으로 fallback
   const onBack = () => {
@@ -85,7 +85,7 @@ export default function MedsScreen() {
   };
 
   // 약장 자체가 비어 있을 때 — 검색·배너 없이 큰 빈 상태 + 등록 CTA
-  if (meds.length === 0) {
+  if (items.length === 0) {
     return (
       <ScreenContainer header={header}>
         <View className="flex-1 items-center justify-center">
@@ -120,9 +120,13 @@ export default function MedsScreen() {
           />
 
           {/* 약 카드 리스트 — 항응고제 자동 최상단 정렬은 MedicationList가 처리.
+              warningsMap은 검색 필터 결과만 포함하므로 숨겨진 약의 경고는 자동 제외.
               검색 결과 0개일 때만 작은 EmptyState로 안내 (약장 자체 비어 있는 케이스는 위에서 처리됨) */}
           <MedicationList
-            medications={filtered}
+            medications={filtered.map((mw) => mw.medication)}
+            warningsMap={Object.fromEntries(
+              filtered.map((mw) => [mw.medication.item_seq, mw.warnings]),
+            )}
             onItemPress={onMedicationPress}
             emptyState={
               query ? (
