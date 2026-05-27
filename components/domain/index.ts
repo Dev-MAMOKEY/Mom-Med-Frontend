@@ -35,3 +35,15 @@ export type { ParentSwitcherProps, ParentSummary } from './ParentSwitcher';
 
 export { BarcodeScanner } from './BarcodeScanner';
 export type { BarcodeScannerProps, BarcodeScanResult } from './BarcodeScanner';
+
+export { ConditionTag } from './ConditionTag';
+export type { ConditionTagProps, ConditionTagVariant } from './ConditionTag';
+
+export { AllergyTag } from './AllergyTag';
+export type { AllergyTagProps, AllergyTagVariant } from './AllergyTag';
+
+export { SeverityPicker } from './SeverityPicker';
+export type { SeverityPickerProps } from './SeverityPicker';
+
+export { KcdSearchInput } from './KcdSearchInput';
+export type { KcdSearchInputProps } from './KcdSearchInput';
