@@ -11,7 +11,8 @@ import type { MedicationListItemVariant } from './MedicationListItem';
 
 export interface MedicationListProps {
   medications: Medication[];
-  warnings?: ConditionDrugWarning[];
+  /** item_seq → 해당 약에 매핑된 질병경고 목록. 없는 키는 경고 없음으로 처리. */
+  warningsMap?: Record<string, ConditionDrugWarning[]>;
   variant?: MedicationListItemVariant;
   emptyState?: ReactNode;
   onItemPress?: (med: Medication) => void;
@@ -28,7 +29,7 @@ function sortAnticoagulantFirst(a: Medication, b: Medication): number {
 // 약 카드 컬렉션 — 항응고제 최상단·variant 전달·빈 상태 처리 (F4 응급카드·F6 부모홈에서 재사용)
 export function MedicationList({
   medications,
-  warnings,
+  warningsMap,
   variant = 'default',
   emptyState,
   onItemPress,
@@ -52,7 +53,7 @@ export function MedicationList({
         <MedicationListItem
           key={med.medication_id ?? med.item_seq}
           medication={med}
-          warnings={warnings}
+          warnings={warningsMap?.[med.item_seq]}
           variant={variant}
           onPress={onItemPress ? () => onItemPress(med) : undefined}
         />
