@@ -15,3 +15,4 @@ export { useAllergies } from './useAllergies';
 export { useAddAllergy } from './useAddAllergy';
 export { useDeleteAllergy } from './useDeleteAllergy';
 export { useDiseaseSearch } from './useDiseaseSearch';
+export { useDebouncedValue } from './useDebouncedValue';
