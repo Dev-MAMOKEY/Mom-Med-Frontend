@@ -4,26 +4,28 @@ import type { Parent, RequestVerifyRes, VerifyRes } from '@/api/types/parent';
 export const mockParents = async (): Promise<{ parents: Parent[] }> => ({
   parents: [
     {
-      parent_id: 'mom-001',
+      // 실제 백엔드 DB에 POST /v1/parents로 생성된 어머니 — UUID는 실서버와 일치 (BE에 /me/parents가 없어서 mock 유지하되 ID만 실 UUID로 교체)
+      parent_id: '530a7d32-7451-4c20-a32b-599b05eefa5a',
       display_name: '어머니',
       birthdate: '1954-03-15',
       age: 72,
       address_sido: '대구광역시',
       address_sigungu: '중구',
-      medication_count: 8,
-      alert_count: 1,
-      conditions: ['I10', 'E11'],
+      medication_count: 0,
+      alert_count: 0,
+      conditions: [],
     },
     {
-      parent_id: 'dad-001',
+      // BE에 POST /v1/parents로 생성된 아버지 — UUID는 실서버와 일치 (어머니와 동일 패턴)
+      parent_id: '50a5fcc1-8ae1-48d5-a5a9-601d321d186e',
       display_name: '아버지',
       birthdate: '1951-08-22',
-      age: 75,
+      age: 74,
       address_sido: '대구광역시',
       address_sigungu: '중구',
-      medication_count: 5,
+      medication_count: 0,
       alert_count: 0,
-      conditions: ['M19'],
+      conditions: [],
     },
   ],
 });

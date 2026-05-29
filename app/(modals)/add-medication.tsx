@@ -18,7 +18,8 @@ import { useAddMedication, useDrugDetail, useDrugSearch } from '@/hooks';
 const closeIconColor = tokens.color.neutral.surface.value;
 const TOAST_MS = 1500;
 
-// 약 추가 모달 — 카메라 권한 → 바코드/QR 스캔 → 미리보기 → 약 추가 흐름의 진입점
+// 약 추가 모달 — 카메라 권한 → 바코드/QR 스캔 → 미리보기 → 약 추가 흐름.
+// 권한 거부 흐름과 직접 입력은 useAddMedicationFlow가 약장 화면 위에서 처리하므로 여기는 권한 허용 케이스만.
 export default function AddMedication() {
   const { parentId } = useLocalSearchParams<{ parentId: string }>();
   const [permission, requestPermission] = BarCodeScanner.usePermissions();
@@ -142,45 +143,11 @@ export default function AddMedication() {
     </View>
   );
 
-  // 상태별 본문 — 권한 응답 대기 → 권한 거부 → 미리보기 → 스캔
+  // 상태별 본문 — 미리보기 → 권한 응답 대기 → 권한 거부(legacy fallback) → 스캔
   let content: ReactNode;
 
-  if (!permission) {
-    content = (
-      <View className="flex-1 items-center justify-center">
-        <Loading text="카메라 권한을 확인하는 중..." />
-      </View>
-    );
-  } else if (!permission.granted) {
-    const isPermanentlyDenied = !permission.canAskAgain;
-    const onPermissionAction = () => {
-      if (isPermanentlyDenied) Linking.openSettings();
-      else requestPermission();
-    };
-
-    content = (
-      <View className="flex-1 items-center justify-center px-6 gap-4">
-        <Text className="text-lg font-bold text-surface text-center">
-          카메라 권한이 필요해요
-        </Text>
-        <Text className="text-sm text-surface/70 text-center">
-          약 포장의 바코드·QR을 스캔하려면 카메라 접근이 필요합니다.
-        </Text>
-        <View className="w-full gap-2 mt-4">
-          <Button
-            label={isPermanentlyDenied ? '설정 열기' : '권한 요청'}
-            variant="primary"
-            onPress={onPermissionAction}
-          />
-          <Button
-            label="직접 입력으로 진행"
-            variant="ghost"
-            onPress={onDirectInput}
-          />
-        </View>
-      </View>
-    );
-  } else if (selectedItemSeq) {
+  if (selectedItemSeq) {
+    // 미리보기는 권한 상태와 무관하게 우선 노출 (직접 입력 흐름에서도 동일 분기로 도달)
     content = (
       <View className="flex-1 items-center justify-center px-5 gap-4">
         {isDrugLoading || !drug ? (
@@ -216,6 +183,41 @@ export default function AddMedication() {
             </View>
           </View>
         )}
+      </View>
+    );
+  } else if (!permission) {
+    content = (
+      <View className="flex-1 items-center justify-center">
+        <Loading text="카메라 권한을 확인하는 중..." />
+      </View>
+    );
+  } else if (!permission.granted) {
+    const isPermanentlyDenied = !permission.canAskAgain;
+    const onPermissionAction = () => {
+      if (isPermanentlyDenied) Linking.openSettings();
+      else requestPermission();
+    };
+
+    content = (
+      <View className="flex-1 items-center justify-center px-6 gap-4">
+        <Text className="text-lg font-bold text-surface text-center">
+          카메라 권한이 필요해요
+        </Text>
+        <Text className="text-sm text-surface/70 text-center">
+          약 포장의 바코드·QR을 스캔하려면 카메라 접근이 필요합니다.
+        </Text>
+        <View className="w-full gap-2 mt-4">
+          <Button
+            label={isPermanentlyDenied ? '설정 열기' : '권한 요청'}
+            variant="primary"
+            onPress={onPermissionAction}
+          />
+          <Button
+            label="직접 입력으로 진행"
+            variant="ghost"
+            onPress={onDirectInput}
+          />
+        </View>
       </View>
     );
   } else {

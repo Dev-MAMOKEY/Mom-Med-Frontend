@@ -4,3 +4,4 @@ export * from './medication';
 export * from './safety';
 export * from './condition';
 export * from './allergy';
+export * from './schedule';

@@ -1,10 +1,10 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Check, ChevronDown } from 'lucide-react-native';
 
 import tokens from '@/design-tokens.json';
-import { Avatar, BottomSheet } from '@/components/primitives';
-import type { BottomSheetRef } from '@/components/primitives';
+import { AppSheet } from '@/components/AppSheet';
+import { Avatar } from '@/components/primitives';
 
 export interface ParentSummary {
   parent_id: string;
@@ -20,20 +20,21 @@ export interface ParentSwitcherProps {
 const muteColor = tokens.color.neutral['text-mute'].value;
 const primaryBoldColor = tokens.color.brand['primary-bold'].value;
 
-// 헤더 부모 선택 드롭다운 — 탭 시 BottomSheet로 부모 목록 표시, 선택 시 onSwitch + 시트 닫기
+// 헤더 부모 선택 드롭다운 — 탭 시 AppSheet로 부모 목록 표시, 선택 시 onSwitch + 시트 닫기.
+// dev007: BottomSheet primitive 직접 사용 → AppSheet 마이그레이션. 외부 클릭/드래그로 자동 닫힘.
 export function ParentSwitcher({
   currentParentId,
   parents,
   onSwitch,
 }: ParentSwitcherProps) {
-  const sheetRef = useRef<BottomSheetRef>(null);
+  const [isOpen, setOpen] = useState(false);
   const snapPoints = useMemo(() => ['40%'], []);
 
   const current = parents.find((p) => p.parent_id === currentParentId);
   const displayName = current?.display_name ?? '부모 선택';
 
-  const open = () => sheetRef.current?.present();
-  const close = () => sheetRef.current?.dismiss();
+  const open = () => setOpen(true);
+  const close = () => setOpen(false);
 
   const handleSelect = (parentId: string) => {
     onSwitch(parentId);
@@ -52,7 +53,7 @@ export function ParentSwitcher({
         <ChevronDown size={16} color={muteColor} />
       </Pressable>
 
-      <BottomSheet ref={sheetRef} snapPoints={snapPoints}>
+      <AppSheet open={isOpen} onClose={close} snapPoints={snapPoints}>
         <View className="px-5 pt-2 pb-6">
           <Text className="text-base font-bold text-text mb-3">약장 선택</Text>
           {parents.map((p) => {
@@ -75,7 +76,7 @@ export function ParentSwitcher({
             );
           })}
         </View>
-      </BottomSheet>
+      </AppSheet>
     </>
   );
 }

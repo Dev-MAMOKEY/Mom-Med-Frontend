@@ -59,7 +59,7 @@ export default function AddParentVerify() {
       const { parentId } = useCurrentParentStore.getState();
       if (parentId) {
         router.replace({
-          pathname: '/(caregiver)/[parentId]/home',
+          pathname: '/(caregiver)/[parentId]/notifications',
           params: { parentId },
         });
       }

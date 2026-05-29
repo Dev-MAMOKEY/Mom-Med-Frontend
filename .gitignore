@@ -31,6 +31,10 @@ yarn-error.*
 *.pem
 
 # local env files
+# .env.example만 Git에 올리고, .env와 환경별 변형은 모두 제외
+.env
+.env.*
+!.env.example
 .env*.local
 .env.production
 .env.demo

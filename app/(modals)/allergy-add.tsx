@@ -7,6 +7,7 @@ import { Header, ScreenContainer } from '@/components';
 import { SeverityPicker } from '@/components/domain';
 import { Button, Input } from '@/components/primitives';
 import { useAddAllergy } from '@/hooks';
+import { computeAddButtonLabel } from '@/utils/severity';
 
 // 알레르겐 타입별 자주 등록되는 항목 — 목업 v2 알레르기 추가 모달의 추천 칩 데이터
 const COMMON_ALLERGENS: Record<AllergenType, string[]> = {
@@ -175,7 +176,7 @@ export default function AllergyAdd() {
 
           {/* 추가 — 이름 비어 있으면 disabled, severity가 severe면 danger 색 강조 */}
           <Button
-            label={name.trim() ? `${name.trim()} (${severity}) 추가` : '추가'}
+            label={computeAddButtonLabel(name, severity)}
             variant={severity === 'severe' ? 'danger' : 'primary'}
             onPress={handleAdd}
             loading={isPending}

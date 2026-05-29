@@ -1,0 +1,53 @@
+npm warn Unknown project config "public-hoist-pattern". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+$ expo start --web
+env: load .env
+env: export EXPO_PUBLIC_API_BASE_URL EXPO_PUBLIC_DEMO_MODE EXPO_PUBLIC_SHOW_PHONE_FRAME EXPO_PUBLIC_USE_MOCK
+Starting project at C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend
+React Compiler enabled
+(node:20372) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/tiilk/Desktop/projectwindow/mamoki/frontend/styles/tailwind.config.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Starting Metro Bundler
+
+The following packages should be updated for best compatibility with the installed expo version:
+  expo-camera@55.0.18 - expected version: ~55.0.19
+Your project may not work correctly until you install the expected versions of the packages.
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+Web node_modules\.pnpm\expo-router@55.0.16_@expo+l_1ed34b5ca99b26cf1d9d0895741ade95\node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web node_modules\.pnpm\expo-router@55.0.16_@expo+l_1ed34b5ca99b26cf1d9d0895741ade95\node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 62.2% ( 818/1089)
+λ node_modules\.pnpm\@expo+router-server@55.0.18_bd18e3913b085deef8d59da4a12a4a09\node_modules\@expo\router-server\node\render.js ▓▓▓▓▓▓▓░░░░░░░░░ 48.2% ( 860/2958)
+λ Bundled 5873ms node_modules\.pnpm\@expo+router-server@55.0.18_bd18e3913b085deef8d59da4a12a4a09\node_modules\@expo\router-server\node\render.js (3486 modules)
+Web node_modules\.pnpm\expo-router@55.0.16_@expo+l_1ed34b5ca99b26cf1d9d0895741ade95\node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 98.0% (3271/3305)
+Web Bundled 7694ms node_modules\.pnpm\expo-router@55.0.16_@expo+l_1ed34b5ca99b26cf1d9d0895741ade95\node_modules\expo-router\entry.js (3305 modules)
+λ  WARN  props.pointerEvents is deprecated. Use style.pointerEvents 
+  console.warn (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\@expo+cli@55.0.32_@expo+dom_2a031997c482688a2bc4d938772f5a13\node_modules\@expo\cli\src\start\server\serverLogLikeMetro.ts:177:21)
+  warnOnce (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\react-native-web@0.21.2_rea_a79289cc0e332a994e4df780741ba05d\node_modules\react-native-web\dist\modules\warnOnce\index.js:24:13)
+  createDOMProps (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\react-native-web@0.21.2_rea_a79289cc0e332a994e4df780741ba05d\node_modules\react-native-web\dist\modules\createDOMProps\index.js:805:13)
+  createElement (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\react-native-web@0.21.2_rea_a79289cc0e332a994e4df780741ba05d\node_modules\react-native-web\dist\exports\createElement\index.js:23:32)
+  Component (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\react-native-web@0.21.2_rea_a79289cc0e332a994e4df780741ba05d\node_modules\react-native-web\dist\exports\View\index.js:111:23)
+  Object.callComponentInDEV [as react_stack_bottom_frame] (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\react-dom@19.2.0_react@19.2.0\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:9808:18)
+  renderWithHooks (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\react-dom@19.2.0_react@19.2.0\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:5062:19)
+  run (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\react-dom@19.2.0_react@19.2.0\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:6017:39)
+  retryNode (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\react-dom@19.2.0_react@19.2.0\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:6417:31)
+  renderNodeDestructive (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\react-dom@19.2.0_react@19.2.0\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:6367:11)
+Web Bundled 1279ms node_modules\.pnpm\expo-router@55.0.16_@expo+l_1ed34b5ca99b26cf1d9d0895741ade95\node_modules\expo-router\entry.js (3393 modules)
+ LOG  [web] Logs will appear in the browser console
+Web node_modules\.pnpm\expo-router@55.0.16_@expo+l_1ed34b5ca99b26cf1d9d0895741ade95\node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 121ms node_modules\.pnpm\@expo+router-server@55.0.18_bd18e3913b085deef8d59da4a12a4a09\node_modules\@expo\router-server\node\render.js (1 module)
+λ  WARN  props.pointerEvents is deprecated. Use style.pointerEvents 
+  console.warn (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\@expo+cli@55.0.32_@expo+dom_2a031997c482688a2bc4d938772f5a13\node_modules\@expo\cli\src\start\server\serverLogLikeMetro.ts:177:21)
+  warnOnce (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\react-native-web@0.21.2_rea_a79289cc0e332a994e4df780741ba05d\node_modules\react-native-web\dist\modules\warnOnce\index.js:24:13)
+  createDOMProps (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\react-native-web@0.21.2_rea_a79289cc0e332a994e4df780741ba05d\node_modules\react-native-web\dist\modules\createDOMProps\index.js:805:13)
+  createElement (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\react-native-web@0.21.2_rea_a79289cc0e332a994e4df780741ba05d\node_modules\react-native-web\dist\exports\createElement\index.js:23:32)
+  Component (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\react-native-web@0.21.2_rea_a79289cc0e332a994e4df780741ba05d\node_modules\react-native-web\dist\exports\View\index.js:111:23)
+  Object.callComponentInDEV [as react_stack_bottom_frame] (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\react-dom@19.2.0_react@19.2.0\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:9808:18)
+  renderWithHooks (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\react-dom@19.2.0_react@19.2.0\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:5062:19)
+  run (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\react-dom@19.2.0_react@19.2.0\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:6017:39)
+  retryNode (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\react-dom@19.2.0_react@19.2.0\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:6417:31)
+  renderNodeDestructive (C:\Users\tiilk\Desktop\projectwindow\mamoki\frontend\node_modules\.pnpm\react-dom@19.2.0_react@19.2.0\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:6367:11)
+Web Bundled 1085ms node_modules\.pnpm\expo-router@55.0.16_@expo+l_1ed34b5ca99b26cf1d9d0895741ade95\node_modules\expo-router\entry.js (1 module)
+Web Bundled 95ms node_modules\.pnpm\expo-router@55.0.16_@expo+l_1ed34b5ca99b26cf1d9d0895741ade95\node_modules\expo-router\entry.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+[ELIFECYCLE] Command failed with exit code 4294967295.

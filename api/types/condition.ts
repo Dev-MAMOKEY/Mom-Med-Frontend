@@ -30,6 +30,8 @@ export type ConditionList = z.infer<typeof ConditionListSchema>;
 
 export const AddConditionReqSchema = z.object({
   disease_code: z.string(),
+  // disease_name은 BE의 conditionName 필드로 매핑되므로 추가 (mock 모드에서도 표시용으로 활용)
+  disease_name: z.string().optional(),
   diagnosed_at: z.string().optional(),
   notes: z.string().optional(),
 });

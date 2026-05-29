@@ -1,6 +1,8 @@
 import { Redirect, router } from 'expo-router';
+import { useState } from 'react';
 import { Text, View } from 'react-native';
 
+import { NoticeDialog } from '@/components';
 import { RoleSelectCard } from '@/components/domain';
 import { useRoleStore, useSessionStore } from '@/stores';
 
@@ -9,15 +11,17 @@ export default function RoleSelect() {
   const role = useRoleStore((s) => s.role);
   const setRole = useRoleStore((s) => s.setRole);
   const isDemoMode = useSessionStore((s) => s.isDemoMode);
+  // "내 약장" 카드 — parent 화면 미구현 + 갇히는 placeholder라 진입을 막고 안내 모달만 띄움.
+  // ⚠ early return 가드보다 위에 둬야 함 — caregiver 선택 후 재렌더링에서 가드가 일찍
+  //   return 하면 useState 호출이 빠져 hook count mismatch가 난다 (실제로 한 번 발생).
+  const [isParentNoticeOpen, setParentNoticeOpen] = useState(false);
 
   // 이미 역할이 선택돼 있으면 곧장 해당 홈으로 보냄
   if (role === 'parent') return <Redirect href="/(parent)/home" />;
   if (role === 'caregiver') return <Redirect href="/(caregiver)/parents" />;
 
-  const handleParent = () => {
-    setRole('parent');
-    router.replace('/(parent)/home');
-  };
+  const handleParent = () => setParentNoticeOpen(true);
+  const closeParentNotice = () => setParentNoticeOpen(false);
 
   const handleCaregiver = () => {
     setRole('caregiver');
@@ -32,7 +36,7 @@ export default function RoleSelect() {
             <Text className="text-4xl">💊</Text>
           </View>
         </View>
-        <Text className="text-center text-3xl font-extrabold text-text mt-4">엄마약</Text>
+        <Text className="text-center text-3xl font-extrabold text-text mt-4">Yakjugo</Text>
         <Text className="text-center text-sm text-text-soft mt-2">가족 약 관리, 안심하고</Text>
       </View>
 
@@ -64,6 +68,16 @@ export default function RoleSelect() {
           <Text className="text-xs text-text-mute">데모 모드 · 로그인 없이 진행</Text>
         </View>
       )}
+
+      {/* "내 약장" 클릭 시 안내 — 해당 화면이 준비되기 전까지 진입 차단. */}
+      <NoticeDialog
+        open={isParentNoticeOpen}
+        onClose={closeParentNotice}
+        icon={<Text className="text-3xl">🛠️</Text>}
+        title="개발 중이에요"
+        description={'내 약장 기능은 아직 준비 중이에요.\n곧 만나보실 수 있어요.'}
+        primaryAction={{ label: '확인', onPress: closeParentNotice }}
+      />
     </View>
   );
 }

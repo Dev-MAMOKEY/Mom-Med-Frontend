@@ -22,6 +22,8 @@ export function ScreenContainer({
           className="flex-1"
           contentContainerClassName="grow"
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
         >
           {children}
         </ScrollView>

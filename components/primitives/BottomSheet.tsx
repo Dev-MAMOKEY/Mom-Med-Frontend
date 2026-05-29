@@ -22,11 +22,14 @@ export const BottomSheet = forwardRef<BottomSheetModal, BottomSheetProps>(
       <BottomSheetModal
         ref={ref}
         snapPoints={snapPoints}
+        // @gorhom v5 기본 enableDynamicSizing=true는 콘텐츠 크기로 시트를 줄임.
+        // snapPoints 명시한 사용처가 의도와 다르게 짧아지므로 기본 false로. rest로 override 가능.
+        enableDynamicSizing={false}
         backgroundStyle={{ backgroundColor: surfaceColor }}
         handleIndicatorStyle={{ backgroundColor: handleColor }}
         {...rest}
       >
-        <BottomSheetView>{children}</BottomSheetView>
+        <BottomSheetView style={{ flex: 1 }}>{children}</BottomSheetView>
       </BottomSheetModal>
     );
   }

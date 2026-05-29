@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Text, TextInput, View } from 'react-native';
 import type { TextInputProps } from 'react-native';
 
@@ -29,13 +28,9 @@ export function Input({
   prefix,
   ...inputProps
 }: InputProps) {
-  const [focused, setFocused] = useState(false);
-
-  const borderClass = error
-    ? 'border-danger'
-    : focused
-      ? 'border-primary bg-primary-50'
-      : 'border-border bg-surface';
+  // 포커스 시 별도 강조 색 적용 안 함 — 사용자 의도 (살구 테두리 제거).
+  // web의 native focus outline은 outline-none + style fallback으로 차단.
+  const borderClass = error ? 'border-danger' : 'border-border bg-surface';
 
   return (
     <View className="w-full">
@@ -54,8 +49,9 @@ export function Input({
           keyboardType={keyboardByVariant[variant]}
           placeholderTextColor={placeholderColor}
           className="flex-1 text-base text-text"
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
+          // RN Web에서 <input>이 받는 브라우저 기본 :focus outline 제거.
+          // RN 자체엔 outlineStyle 키가 없지만 RN-Web이 string 그대로 DOM에 전달.
+          style={{ outlineStyle: 'none' } as never}
           {...inputProps}
         />
       </View>

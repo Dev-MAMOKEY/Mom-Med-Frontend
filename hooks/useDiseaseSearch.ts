@@ -9,6 +9,7 @@ export function useDiseaseSearch(query: string) {
   return useQuery({
     queryKey: ['disease-search', query],
     enabled: query.length >= 2,
+    // 백엔드에 KCD 검색 엔드포인트 없음 — mock 고정
     queryFn: () =>
       apiCall(
         'GET',
@@ -16,6 +17,7 @@ export function useDiseaseSearch(query: string) {
         undefined,
         DiseaseSearchResListSchema,
         () => mockDiseaseSearch(query),
+        'always-mock',
       ),
   });
 }

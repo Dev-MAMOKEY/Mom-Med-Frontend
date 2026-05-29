@@ -1,6 +1,5 @@
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
-import { X } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
@@ -8,10 +7,8 @@ import type { Evidence } from '@/api/types';
 import { ScreenContainer } from '@/components';
 import { PillImage, SafetyBanner, SafetyDetailCard } from '@/components/domain';
 import { Button, EmptyState } from '@/components/primitives';
-import tokens from '@/design-tokens.json';
 import { useDeleteMedication, useDrugDetail } from '@/hooks';
 
-const closeIconColor = tokens.color.neutral.text.value;
 const TOAST_MS = 1500;
 
 // 안전판정 결과 모달 — add-medication에서 BLOCK/WARN 결정 시 router.replace로 진입.
@@ -72,24 +69,12 @@ export default function SafetyResult() {
     [evidences],
   );
 
-  // 풀스크린 모달이라 닫기 X만 우측 정렬 (목업 v2 화면 8번 헤더 패턴)
-  const header = (
-    <View className="flex-row items-center justify-end px-5 py-3">
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="닫기"
-        onPress={() => router.back()}
-        hitSlop={8}
-      >
-        <X size={24} color={closeIconColor} />
-      </Pressable>
-    </View>
-  );
+  // dev008: 우측 상단 X 제거 — 하단 "알겠어요"/"확인했어요" 버튼으로 닫을 수 있어 중복.
 
   // 잘못된 진입 — decision 누락이거나 알 수 없는 값
   if (!decision) {
     return (
-      <ScreenContainer header={header}>
+      <ScreenContainer>
         <EmptyState
           title="결과를 표시할 수 없어요"
           description="다시 시도해주세요"
@@ -100,9 +85,6 @@ export default function SafetyResult() {
 
   // BLOCK은 mockup의 SafetyBanner 기본 문구를 그대로 사용, WARN은 "약은 추가됐어요"로 사용자에게 상태를 명확히 안내
   const bannerSubtitle = decision === 'WARN' ? '약은 추가됐어요' : undefined;
-  // ✕ 컬러는 decision에 맞춰 (BLOCK=danger, WARN=warning)
-  const crossClass = decision === 'BLOCK' ? 'text-danger' : 'text-warning';
-  const attemptedLabelClass = decision === 'BLOCK' ? 'text-danger' : 'text-warning';
 
   // 닫기 액션 — BLOCK "알겠어요", WARN "확인했어요" 공용
   const handleConfirm = () => {
@@ -126,26 +108,28 @@ export default function SafetyResult() {
 
   return (
     <View className="flex-1 relative">
-      <ScreenContainer header={header}>
+      <ScreenContainer>
         <View className="px-5 pt-2 pb-24 gap-3">
-        <SafetyBanner decision={decision} subtitle={bannerSubtitle} />
-
-        {/* 약 비교 카드 — 복용중 약 ✕ 추가 시도 약. 둘 다 없으면 카드 자체를 숨김 */}
-        {(conflictingDrug || attemptedDrug) && (
-          <View className="bg-surface border border-border rounded-lg p-4">
-            <View className="flex-row items-center justify-between">
+        <SafetyBanner
+          decision={decision}
+          subtitle={bannerSubtitle}
+        >
+          {/* 약 비교 — 배너와 같은 색조 안에 합쳐서 "하나의 덩어리"로 인지되게.
+              빨간 배경 위라 글자/구분선은 흰색 계열로 통일. */}
+          {(conflictingDrug || attemptedDrug) && (
+            <View className="flex-row items-center justify-between pt-4 border-t border-surface/30">
               <View className="flex-1 items-center">
                 <PillImage
                   drugName={conflictingDrug?.item_name ?? '?'}
                   size="sm"
                 />
-                <Text className="text-xs font-bold text-text mt-1.5 text-center" numberOfLines={1}>
+                <Text className="text-xs font-bold text-surface mt-1.5 text-center" numberOfLines={1}>
                   {conflictingDrug?.item_name ?? '복용중 약'}
                 </Text>
-                <Text className="text-[10px] text-text-soft mt-0.5">복용 중</Text>
+                <Text className="text-[10px] text-surface/80 mt-0.5">복용 중</Text>
               </View>
 
-              <Text className={`text-2xl px-3 ${crossClass}`}>✕</Text>
+              <Text className="text-2xl px-3 text-surface">✕</Text>
 
               <View className="flex-1 items-center">
                 <PillImage
@@ -153,23 +137,20 @@ export default function SafetyResult() {
                   imageUrl={attemptedDrug?.pill_visual?.item_image}
                   size="sm"
                 />
-                <Text className="text-xs font-bold text-text mt-1.5 text-center" numberOfLines={1}>
+                <Text className="text-xs font-bold text-surface mt-1.5 text-center" numberOfLines={1}>
                   {attemptedDrug?.item_name ?? '추가하려는 약'}
                 </Text>
-                <Text className={`text-[10px] mt-0.5 ${attemptedLabelClass}`}>
+                <Text className="text-[10px] text-surface/80 mt-0.5">
                   추가 시도
                 </Text>
               </View>
             </View>
-          </View>
-        )}
+          )}
+        </SafetyBanner>
 
-        {/* 사유 카드 리스트 — DUR/NB evidence를 좌측 severity 컬러 보더로 표시, 식약처 원문 인용 포함 */}
+        {/* 사유 카드 리스트 — 별도 헤더 없이 카드 안 뱃지 좌측에 컨텍스트 라벨(차단/주의 사유) 노출 */}
         {displayEvidences.length > 0 && (
           <View className="gap-2">
-            <Text className="text-sm font-bold text-text">
-              {decision === 'BLOCK' ? '⚠️ 차단 사유' : '⚠️ 주의 사유'}
-            </Text>
             {displayEvidences.map((e, idx) => (
               <SafetyDetailCard
                 key={`${e.source}-${idx}`}
@@ -178,17 +159,24 @@ export default function SafetyResult() {
                 message={e.message}
                 citation={e.citation}
                 citationSource={e.citation_source}
+                contextLabel={
+                  idx === 0
+                    ? decision === 'BLOCK'
+                      ? '차단 사유'
+                      : '주의 사유'
+                    : undefined
+                }
               />
             ))}
           </View>
         )}
 
-        {/* 대처 안내 — 본 PR에선 자동 알림 연동이 없어 결과를 들고 의사·약사 상담을 권유 */}
-        <View className="bg-info-soft rounded-md p-3">
-          <Text className="text-xs font-bold text-info mb-1">
-            💬 어떻게 해야 하나요?
+        {/* 대처 안내 — 흰 카드, 차단 사유 카드와 같은 톤(미니멀)으로 통일. */}
+        <View className="bg-surface rounded-lg p-4 mt-1">
+          <Text className="text-sm font-bold text-text mb-2">
+            어떻게 해야 하나요?
           </Text>
-          <Text className="text-[11px] text-text-soft leading-relaxed">
+          <Text className="text-sm text-text-soft leading-relaxed">
             {decision === 'BLOCK'
               ? '처방하신 의사·약사에게 알리고 대체약을 상의해주세요.'
               : '주치의나 약사에게 이 결과를 보여주고 함께 복용해도 괜찮은지 확인해주세요.'}

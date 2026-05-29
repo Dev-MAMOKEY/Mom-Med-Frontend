@@ -31,7 +31,7 @@ export default function ConditionAdd() {
   const handleAdd = () => {
     if (!selected) return;
     addCondition(
-      { disease_code: selected.sickCd },
+      { disease_code: selected.sickCd, disease_name: selected.sickNm },
       {
         onSuccess: () => {
           setToast(`${selected.sickNm} 추가 완료`);

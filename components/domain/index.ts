@@ -46,3 +46,12 @@ export type { SeverityPickerProps } from './SeverityPicker';
 
 export { KcdSearchInput } from './KcdSearchInput';
 export type { KcdSearchInputProps } from './KcdSearchInput';
+
+export { ScheduleSheet } from './ScheduleSheet';
+export type { ScheduleSheetProps } from './ScheduleSheet';
+
+export { IntakeCard } from './IntakeCard';
+export type { IntakeCardProps } from './IntakeCard';
+
+export { SlotGroupHeader } from './SlotGroupHeader';
+export type { SlotGroupHeaderProps } from './SlotGroupHeader';

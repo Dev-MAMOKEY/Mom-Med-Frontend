@@ -14,6 +14,7 @@ export function useDrugSearch(query: string) {
   return useQuery({
     queryKey: ['drug-search', query],
     enabled: query.length >= 2,
+    // 백엔드에 약 검색 엔드포인트 없음 — mock 고정
     queryFn: () =>
       apiCall(
         'GET',
@@ -21,6 +22,7 @@ export function useDrugSearch(query: string) {
         undefined,
         DrugSearchResSchema,
         () => mockDrugSearch(query),
+        'always-mock',
       ),
   });
 }

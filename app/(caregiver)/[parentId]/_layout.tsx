@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { TabBar } from '@/components';
+import { AppMenuButton, TabBar } from '@/components';
 import { ParentSwitcher } from '@/components/domain';
 import { useParents } from '@/hooks';
 import { useCurrentParentStore } from '@/stores';
@@ -37,7 +37,7 @@ export default function ParentScopedLayout() {
   // 부모 전환 — URL 갈아끼기 (store는 useEffect로 자동 동기화)
   const handleSwitch = (newParentId: string) => {
     router.replace({
-      pathname: '/(caregiver)/[parentId]/home',
+      pathname: '/(caregiver)/[parentId]/notifications',
       params: { parentId: newParentId },
     });
   };
@@ -45,12 +45,15 @@ export default function ParentScopedLayout() {
   return (
     <View className="flex-1 bg-bg">
       <SafeAreaView edges={['top']} className="bg-bg">
-        <View className="px-5 pt-4 pb-3">
-          <ParentSwitcher
-            currentParentId={parentId ?? ''}
-            parents={parents}
-            onSwitch={handleSwitch}
-          />
+        <View className="px-5 pt-4 pb-3 flex-row items-center justify-between gap-3">
+          <View className="flex-1">
+            <ParentSwitcher
+              currentParentId={parentId ?? ''}
+              parents={parents}
+              onSwitch={handleSwitch}
+            />
+          </View>
+          <AppMenuButton />
         </View>
       </SafeAreaView>
       <View className="flex-1">
@@ -58,10 +61,11 @@ export default function ParentScopedLayout() {
           screenOptions={{ headerShown: false }}
           tabBar={(props) => <ParentTabBar {...props} />}
         >
-          <Tabs.Screen name="home" />
+          <Tabs.Screen name="notifications" />
           <Tabs.Screen name="meds" />
           <Tabs.Screen name="conditions" />
-          <Tabs.Screen name="more" />
+          {/* dev008: more 자리에 settings — more.tsx 파일은 보존하되 탭 등록만 빠짐 */}
+          <Tabs.Screen name="settings" />
         </Tabs>
       </View>
     </View>
