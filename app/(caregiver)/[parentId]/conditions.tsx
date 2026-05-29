@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { Text, View } from 'react-native';
 
-import { Header, ScreenContainer } from '@/components';
+import { ScreenContainer, SectionCard } from '@/components';
 import { AllergyTag, ConditionTag } from '@/components/domain';
 import { Button, EmptyState, Loading } from '@/components/primitives';
 import {
@@ -18,17 +18,11 @@ export default function ConditionsScreen() {
   const { parentId: urlParentId } = useLocalSearchParams<{ parentId: string }>();
   const storeParentId = useCurrentParentStore((s) => s.parentId);
   const parentId = urlParentId || storeParentId || '';
-  const displayName = useCurrentParentStore((s) => s.displayName);
 
   const { data: condData, isLoading: condLoading } = useConditions(parentId);
   const { mutate: deleteCondition } = useDeleteCondition(parentId);
   const { data: algData, isLoading: algLoading } = useAllergies(parentId);
   const { mutate: deleteAllergy } = useDeleteAllergy(parentId);
-
-  const onBack = () => {
-    if (router.canGoBack()) router.back();
-    else router.replace('/(caregiver)/parents');
-  };
 
   const goAddCondition = () => {
     router.push({
@@ -44,14 +38,11 @@ export default function ConditionsScreen() {
     });
   };
 
-  const title = `${displayName ?? '부모님'} 질병·알레르기`;
-  const header = <Header title={title} showBack onBack={onBack} />;
-
   const conditions = condData?.conditions ?? [];
   const allergies = algData?.allergies ?? [];
 
   return (
-    <ScreenContainer header={header}>
+    <ScreenContainer>
       <View className="px-5 pt-2 pb-24 gap-3">
         {/* 기저질환 섹션 */}
         <View className="flex-row items-center justify-between mt-1">
@@ -59,29 +50,31 @@ export default function ConditionsScreen() {
           <Text className="text-xs text-text-mute">{conditions.length}건</Text>
         </View>
 
-        {condLoading ? (
-          <Loading size="sm" />
-        ) : conditions.length === 0 ? (
-          <EmptyState title="등록된 질병이 없어요" />
-        ) : (
-          <View className="gap-2">
-            {conditions.map((c) => (
-              <ConditionTag
-                key={c.condition_id}
-                code={c.disease_code}
-                name={c.disease_name}
-                variant="card"
-                onRemove={() => deleteCondition(c.condition_id)}
-              />
-            ))}
-          </View>
-        )}
+        <SectionCard>
+          {condLoading ? (
+            <Loading size="sm" />
+          ) : conditions.length === 0 ? (
+            <EmptyState title="등록된 질병이 없어요" />
+          ) : (
+            <View className="gap-2">
+              {conditions.map((c) => (
+                <ConditionTag
+                  key={c.condition_id}
+                  code={c.disease_code}
+                  name={c.disease_name}
+                  variant="card"
+                  onRemove={() => deleteCondition(c.condition_id)}
+                />
+              ))}
+            </View>
+          )}
 
-        <Button
-          label="+ 질병 추가"
-          variant="secondary"
-          onPress={goAddCondition}
-        />
+          <Button
+            label="+ 질병 추가"
+            variant="secondary"
+            onPress={goAddCondition}
+          />
+        </SectionCard>
 
         {/* 알레르기 섹션 */}
         <View className="flex-row items-center justify-between mt-4">
@@ -89,31 +82,33 @@ export default function ConditionsScreen() {
           <Text className="text-xs text-text-mute">{allergies.length}건</Text>
         </View>
 
-        {algLoading ? (
-          <Loading size="sm" />
-        ) : allergies.length === 0 ? (
-          <EmptyState title="등록된 알레르기가 없어요" />
-        ) : (
-          <View className="gap-2">
-            {allergies.map((a) => (
-              <AllergyTag
-                key={a.allergy_id}
-                type={a.allergen_type}
-                name={a.allergen_name}
-                severity={a.severity}
-                notes={a.notes ?? undefined}
-                variant="card"
-                onRemove={() => deleteAllergy(a.allergy_id)}
-              />
-            ))}
-          </View>
-        )}
+        <SectionCard>
+          {algLoading ? (
+            <Loading size="sm" />
+          ) : allergies.length === 0 ? (
+            <EmptyState title="등록된 알레르기가 없어요" />
+          ) : (
+            <View className="gap-2">
+              {allergies.map((a) => (
+                <AllergyTag
+                  key={a.allergy_id}
+                  type={a.allergen_type}
+                  name={a.allergen_name}
+                  severity={a.severity}
+                  notes={a.notes ?? undefined}
+                  variant="card"
+                  onRemove={() => deleteAllergy(a.allergy_id)}
+                />
+              ))}
+            </View>
+          )}
 
-        <Button
-          label="+ 알레르기 추가"
-          variant="secondary"
-          onPress={goAddAllergy}
-        />
+          <Button
+            label="+ 알레르기 추가"
+            variant="secondary"
+            onPress={goAddAllergy}
+          />
+        </SectionCard>
 
         {/* 안내 — 목업 v2 화면 13번 하단 안내 박스 */}
         <View className="mt-3 bg-info-soft rounded-md p-3">

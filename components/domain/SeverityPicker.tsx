@@ -1,22 +1,22 @@
 import { Pressable, Text, View } from 'react-native';
 
 import type { AllergySeverity } from '@/api/types/common';
+import { SEVERITY_LABELS } from '@/utils/severity';
 
 export interface SeverityPickerProps {
   value: AllergySeverity;
   onChange: (severity: AllergySeverity) => void;
 }
 
-// 옵션별 라벨/보조라벨/점 색상 — 목업 v2 알레르기 추가 모달과 동일
+// 옵션별 라벨/점 색상 — 한국어 라벨만 노출 (dev010, SEVERITY_LABELS SSOT 재사용)
 const options: ReadonlyArray<{
   value: AllergySeverity;
   label: string;
-  sub: string;
   dot: string;
 }> = [
-  { value: 'mild', label: 'mild', sub: '가벼움', dot: 'bg-info' },
-  { value: 'moderate', label: 'moderate', sub: '중간', dot: 'bg-warning' },
-  { value: 'severe', label: 'severe', sub: '심각', dot: 'bg-danger' },
+  { value: 'mild', label: SEVERITY_LABELS.mild, dot: 'bg-info' },
+  { value: 'moderate', label: SEVERITY_LABELS.moderate, dot: 'bg-warning' },
+  { value: 'severe', label: SEVERITY_LABELS.severe, dot: 'bg-danger' },
 ];
 
 // 선택 강조 색상 매핑 (선택된 항목에만 적용)
@@ -44,22 +44,18 @@ export function SeverityPicker({ value, onChange }: SeverityPickerProps) {
         const labelClass = isSelected
           ? `font-bold ${selectedLabel[opt.value]}`
           : 'font-semibold text-text';
-        const subClass = isSelected
-          ? selectedLabel[opt.value]
-          : 'text-text-mute';
 
         return (
           <Pressable
             key={opt.value}
             accessibilityRole="button"
             accessibilityState={{ selected: isSelected }}
-            accessibilityLabel={`${opt.label} ${opt.sub}`}
+            accessibilityLabel={opt.label}
             onPress={() => onChange(opt.value)}
             className={`flex-1 items-center rounded-md py-3 ${containerClass}`}
           >
             <View className={`w-3 h-3 rounded-full mb-1 ${opt.dot}`} />
-            <Text className={`text-xs ${labelClass}`}>{opt.label}</Text>
-            <Text className={`text-[10px] ${subClass}`}>{opt.sub}</Text>
+            <Text className={`text-sm ${labelClass}`}>{opt.label}</Text>
           </Pressable>
         );
       })}

@@ -35,7 +35,7 @@ function Row({ children }: { children: ReactNode }) {
 export default function DemoScreen() {
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabId>('home');
+  const [activeTab, setActiveTab] = useState<TabId>('notifications');
   const [inputValue, setInputValue] = useState('');
   const sheetRef = useRef<BottomSheetRef>(null);
 

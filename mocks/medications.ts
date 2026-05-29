@@ -7,6 +7,7 @@ import type {
   MedicationList,
   OverallSafetyCheck,
 } from '@/api/types';
+import { mockDeleteSchedule } from './schedule';
 
 // ============================================================================
 // 1) 부모별 약장 (mom-001 4개 · dad-001 0개)
@@ -71,30 +72,41 @@ export const mockSafetyCheck = async (
 // 3) 약 검색 — 카탈로그에서 부분 문자열 매칭 (한글·영문 모두)
 // ============================================================================
 
+// 검색 자체는 mock이지만 선택 후 추가는 실 BE 호출 → item_seq는 백엔드 drugs_master에
+// 실제로 시드된 DEMO_* 코드와 1:1 일치해야 함. 시드되지 않은 약을 카탈로그에 두면
+// 사용자가 탭할 때 BE 404가 나서 추가 실패 (dev008에서 발생). 데모 4종으로 좁힘.
+// (BLOCK 데모: metformin × iohexol — DUR 식약처 고시 20110188)
 const searchCatalog: Medication[] = [
-  ...momMedications,
   {
-    item_seq: 'aspirin-100',
-    item_name: '아스피린프로텍트정 100mg',
-    main_ingr_en: 'Aspirin',
-    atc_code: 'B01AC06',
-    specialty_type: 'OTC',
+    item_seq: 'DEMO_MET_001',
+    item_name: '메트포르민염산염정 500mg (데모)',
+    main_ingr_en: 'Metformin Hydrochloride',
+    atc_code: 'A10BA02',
+    specialty_type: 'ETC',
     added_at: '2026-05-01T08:00:00Z',
   },
   {
-    item_seq: 'cimetidine-200',
-    item_name: '시메티딘정 200mg',
-    main_ingr_en: 'Cimetidine',
-    atc_code: 'A02BA01',
-    specialty_type: 'OTC',
+    item_seq: 'DEMO_IOH_001',
+    item_name: '이오헥솔 300mg/mL 주사액 (데모)',
+    main_ingr_en: 'Iohexol',
+    atc_code: 'V08AB02',
+    specialty_type: 'ETC',
     added_at: '2026-05-01T08:00:00Z',
   },
   {
-    item_seq: 'grapefruit-juice',
-    item_name: '자몽주스 (예시 음료)',
-    main_ingr_en: 'Grapefruit Juice',
-    atc_code: null,
-    specialty_type: null,
+    item_seq: 'DEMO_AML_001',
+    item_name: '암로디핀베실산염정 5mg (데모)',
+    main_ingr_en: 'Amlodipine Besylate',
+    atc_code: 'C08CA01',
+    specialty_type: 'ETC',
+    added_at: '2026-05-01T08:00:00Z',
+  },
+  {
+    item_seq: 'DEMO_ACE_001',
+    item_name: '아세트아미노펜정 500mg (데모)',
+    main_ingr_en: 'Acetaminophen',
+    atc_code: 'N02BE01',
+    specialty_type: 'OTC',
     added_at: '2026-05-01T08:00:00Z',
   },
 ];
@@ -363,7 +375,13 @@ export const mockAddMedication = async (
 //    safety-result(WARN) "제거" 액션·약 상세 삭제 버튼에서 사용
 // ============================================================================
 
+// BE의 `medication_schedules.medication_id REFERENCES patient_medications(id) ON DELETE CASCADE`
+// 동작을 mock 레벨에서 미러 — 약 삭제 시 그 약의 일정·intake도 같이 사라진다.
+// 실 BE 모드에선 DB 트리거가 처리하므로 이 mock은 호출되지 않음.
 export const mockDeleteMedication = async (
   _parentId: string,
-  _medicationId: string,
-): Promise<{ success: true }> => ({ success: true });
+  medicationId: string,
+): Promise<{ success: true }> => {
+  await mockDeleteSchedule(medicationId);
+  return { success: true };
+};

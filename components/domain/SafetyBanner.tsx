@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 
 import type { Decision } from '@/api/types/common';
@@ -6,6 +7,9 @@ export interface SafetyBannerProps {
   decision: Decision;
   title?: string;
   subtitle?: string;
+  // 배너 안에 같은 색조로 합쳐서 보여줄 추가 영역 — safety-result의 약 비교 카드 통합 등.
+  // 제공 시 본문 아래에 풀폭으로 렌더되어 "하나의 덩어리" 시각 인상을 만든다.
+  children?: ReactNode;
 }
 
 // decision별 배경·기본 제목·이모지
@@ -22,7 +26,7 @@ const decisionSubtitle: Record<Decision, string> = {
 };
 
 // 안전판정 결과 풀카드 배너 — 큰 이모지 + 제목 + 보조 메시지 (BLOCK/WARN/ALLOW 색상 분기)
-export function SafetyBanner({ decision, title, subtitle }: SafetyBannerProps) {
+export function SafetyBanner({ decision, title, subtitle, children }: SafetyBannerProps) {
   const style = decisionStyle[decision];
   const titleText = title ?? style.defaultTitle;
   const subtitleText = subtitle ?? decisionSubtitle[decision];
@@ -36,6 +40,7 @@ export function SafetyBanner({ decision, title, subtitle }: SafetyBannerProps) {
       {subtitleText && (
         <Text className="text-sm text-surface/90 text-center">{subtitleText}</Text>
       )}
+      {children && <View className="w-full mt-5">{children}</View>}
     </View>
   );
 }

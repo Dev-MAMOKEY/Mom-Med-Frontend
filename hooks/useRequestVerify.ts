@@ -5,6 +5,7 @@ import { mockRequestVerify } from '@/mocks/parents';
 
 export function useRequestVerify() {
   return useMutation({
+    // 백엔드에 폰 인증 엔드포인트 없음 — mock 고정
     mutationFn: (phone: string) =>
       apiCall(
         'POST',
@@ -12,6 +13,7 @@ export function useRequestVerify() {
         { phone },
         RequestVerifyResSchema,
         mockRequestVerify,
+        'always-mock',
       ),
   });
 }

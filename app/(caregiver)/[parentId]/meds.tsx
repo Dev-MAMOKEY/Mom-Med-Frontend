@@ -1,14 +1,14 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import type { Medication } from '@/api/types';
-import { Header, ScreenContainer } from '@/components';
+import { ScreenContainer } from '@/components';
 import { MedicationList, SafetyBanner } from '@/components/domain';
 import { EmptyState, Input, Loading } from '@/components/primitives';
 import tokens from '@/design-tokens.json';
-import { useMedicationsWithWarnings } from '@/hooks';
+import { useAddMedicationFlow, useMedicationsWithWarnings } from '@/hooks';
 import { useCurrentParentStore } from '@/stores';
 
 const fabIconColor = tokens.color.neutral.surface.value;
@@ -20,9 +20,9 @@ export default function MedsScreen() {
   const { parentId: urlParentId } = useLocalSearchParams<{ parentId: string }>();
   const storeParentId = useCurrentParentStore((s) => s.parentId);
   const parentId = urlParentId || storeParentId || '';
-  const displayName = useCurrentParentStore((s) => s.displayName);
   const { data, isLoading, error } = useMedicationsWithWarnings(parentId);
   const [query, setQuery] = useState('');
+  const { onAddMedication, Components: AddMedFlow } = useAddMedicationFlow(parentId);
 
   // 검색은 약 이름·영문 성분에 대해 trim·lowercase 부분 일치 (서버 사이드 검색은 useDrugSearch로 추후 교체)
   const items = data?.medicationsWithWarnings ?? [];
@@ -36,18 +36,9 @@ export default function MedsScreen() {
     );
   }, [items, query]);
 
-  // 헤더 뒤로가기 — 스택이 비어 있으면 부모 목록으로 fallback
-  const onBack = () => {
-    if (router.canGoBack()) router.back();
-    else router.replace('/(caregiver)/parents');
-  };
-
-  const title = `${displayName ?? '부모님'} 약장`;
-  const header = <Header title={title} showBack onBack={onBack} />;
-
   if (isLoading) {
     return (
-      <ScreenContainer header={header}>
+      <ScreenContainer>
         <View className="flex-1 items-center justify-center">
           <Loading text="약장을 불러오는 중..." />
         </View>
@@ -57,7 +48,7 @@ export default function MedsScreen() {
 
   if (error || !data) {
     return (
-      <ScreenContainer header={header}>
+      <ScreenContainer>
         <EmptyState
           title="약장을 불러오지 못했어요"
           description="잠시 후 다시 시도해주세요"
@@ -68,40 +59,51 @@ export default function MedsScreen() {
 
   const { safety } = data;
 
-  // 약 카드 탭 → 약 상세 모달 (#37에서 실제 본문 구현)
+  // 약 카드 탭 → 약 상세 모달.
+  // medicationId(BE patient_medications.id)도 함께 넘김 — 약 삭제 시 BE 키로 사용.
   const onMedicationPress = (med: Medication) => {
     router.push({
       pathname: '/(modals)/medication-detail',
-      params: { itemSeq: med.item_seq, parentId },
+      params: {
+        itemSeq: med.item_seq,
+        parentId,
+        medicationId: med.medication_id ?? '',
+      },
     });
   };
 
-  // 약 추가 모달로 이동 — 빈 상태 CTA + FAB가 공유
-  const goAddMedication = () => {
-    router.push({
-      pathname: '/(modals)/add-medication',
-      params: { parentId },
-    });
-  };
+  // 약 추가 진입은 useAddMedicationFlow가 권한 체크 + NoticeDialog 분기까지 처리
+  const goAddMedication = onAddMedication;
 
-  // 약장 자체가 비어 있을 때 — 검색·배너 없이 큰 빈 상태 + 등록 CTA
+  // 약장 자체가 비어 있을 때 — 검색·배너 없이 큰 빈 상태 + FAB와 동일 스타일 CTA
   if (items.length === 0) {
     return (
-      <ScreenContainer header={header}>
-        <View className="flex-1 items-center justify-center">
-          <EmptyState
-            title="등록된 약이 없어요"
-            description="첫 약을 추가해보세요"
-            cta={{ label: '+ 약 추가', onPress: goAddMedication }}
-          />
-        </View>
-      </ScreenContainer>
+      <>
+        <ScreenContainer>
+          <View className="flex-1 items-center justify-center">
+            <EmptyState
+              title="등록된 약이 없어요"
+              description="첫 약을 추가해보세요"
+            />
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="약 추가"
+              onPress={goAddMedication}
+              className="h-10 px-5 rounded-full bg-primary-bold flex-row items-center justify-center gap-2"
+            >
+              <Plus size={24} color={fabIconColor} strokeWidth={2.5} />
+              <Text className="text-base font-bold text-surface">약 추가</Text>
+            </Pressable>
+          </View>
+        </ScreenContainer>
+        {AddMedFlow}
+      </>
     );
   }
 
   return (
     <View className="flex-1 relative">
-      <ScreenContainer header={header}>
+      <ScreenContainer>
         <View className="px-5 pt-1 pb-24 gap-3">
           {/* 약장 전체 안전 점검 — ALLOW가 아닐 때만 풀배너 노출 */}
           {safety.overall_decision !== 'ALLOW' && (
@@ -137,15 +139,16 @@ export default function MedsScreen() {
         </View>
       </ScreenContainer>
 
-      {/* FAB '+ 약 추가' — 우측 하단 고정 원형 버튼 (목업 v2 화면 5번 기준) */}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="약 추가"
         onPress={goAddMedication}
-        className="absolute right-5 bottom-6 w-14 h-14 rounded-full bg-primary-bold items-center justify-center"
+        className="absolute right-5 bottom-6 h-10 px-5 rounded-full bg-primary-bold flex-row items-center justify-center gap-2"
       >
-        <Plus size={28} color={fabIconColor} strokeWidth={2.5} />
+        <Plus size={24} color={fabIconColor} strokeWidth={2.5} />
+        <Text className="text-base font-bold text-surface">약 추가</Text>
       </Pressable>
+      {AddMedFlow}
     </View>
   );
 }

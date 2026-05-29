@@ -9,6 +9,7 @@ export function useDrugDetail(itemSeq: string) {
   return useQuery({
     queryKey: ['drug', itemSeq],
     enabled: !!itemSeq,
+    // 백엔드 직접 GET /v1/drugs/{itemSeq} 없음 (identify+contraindications로 분리됨) — mock 고정
     queryFn: () =>
       apiCall(
         'GET',
@@ -16,6 +17,7 @@ export function useDrugDetail(itemSeq: string) {
         undefined,
         DrugDetailSchema,
         () => mockDrugDetail(itemSeq),
+        'always-mock',
       ),
   });
 }
